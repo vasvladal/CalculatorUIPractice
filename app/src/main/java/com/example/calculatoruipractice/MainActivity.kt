@@ -60,14 +60,33 @@ fun CalculatorV1() {
             modifier = Modifier.weight(3f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.weight(1f)
-            ) {
+            // Row 1
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
                 CalcButtonV1("7", Modifier.weight(1f))
                 CalcButtonV1("8", Modifier.weight(1f))
                 CalcButtonV1("9", Modifier.weight(1f))
                 CalcButtonV1("÷", Modifier.weight(1f))
+            }
+            // Row 2
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
+                CalcButtonV1("4", Modifier.weight(1f))
+                CalcButtonV1("5", Modifier.weight(1f))
+                CalcButtonV1("6", Modifier.weight(1f))
+                CalcButtonV1("×", Modifier.weight(1f))
+            }
+            // Row 3
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
+                CalcButtonV1("1", Modifier.weight(1f))
+                CalcButtonV1("2", Modifier.weight(1f))
+                CalcButtonV1("3", Modifier.weight(1f))
+                CalcButtonV1("-", Modifier.weight(1f))
+            }
+            // Row 4
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
+                CalcButtonV1("C", Modifier.weight(1f))
+                CalcButtonV1("0", Modifier.weight(1f))
+                CalcButtonV1(".", Modifier.weight(1f))
+                CalcButtonV1("+", Modifier.weight(1f))
             }
         }
     }
