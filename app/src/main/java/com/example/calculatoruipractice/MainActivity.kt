@@ -20,10 +20,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             CalculatorUIPracticeTheme {
                 Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+//                    Greeting(
+//                        name = "Android",
+//                        modifier = Modifier.padding(innerPadding)
+//                    )
+                    CalculatorV1()
                 }
             }
         }
@@ -31,17 +32,22 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun CalculatorV1() {
+    // интерфейс калькулятора
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CalculatorUIPracticeTheme {
-        Greeting("Android")
-    }
-}
+//@Composable
+//fun Greeting(name: String, modifier: Modifier = Modifier) {
+//    Text(
+//        text = "Hello $name!",
+//        modifier = modifier
+//    )
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    CalculatorUIPracticeTheme {
+//        Greeting("Android")
+//    }
+//}
