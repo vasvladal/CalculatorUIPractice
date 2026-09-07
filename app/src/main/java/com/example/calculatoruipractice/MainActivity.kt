@@ -7,9 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,6 +70,23 @@ fun CalculatorV1() {
                 CalcButtonV1("÷", Modifier.weight(1f))
             }
         }
+    }
+}
+
+@Composable
+fun CalcButtonV1(
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = { },
+        modifier = modifier.fillMaxHeight(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(
+            text = label,
+            fontSize = 24.sp
+        )
     }
 }
 
