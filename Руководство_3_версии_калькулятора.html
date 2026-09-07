@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пошаговое руководство — 3 версии тестового калькулятора</title>
+<style>
+    :root {
+        --bg: #f5f7fb;
+        --card: #ffffff;
+        --text: #202124;
+        --muted: #5f6368;
+        --accent: #3f51b5;
+        --accent2: #e8eaf6;
+        --border: #dfe3eb;
+        --code: #1e1e1e;
+        --note: #fff8e1;
+        --success: #e8f5e9;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.65;
+    }
+    .container {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 22px 60px;
+    }
+    header {
+        background: linear-gradient(135deg, #3f51b5, #5c6bc0);
+        color: white;
+        padding: 42px;
+        border-radius: 18px;
+        margin-bottom: 28px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    }
+    h1 { margin: 0 0 12px; font-size: 34px; }
+    h2 {
+        margin-top: 42px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--border);
+        color: #283593;
+    }
+    h3 { color: #303f9f; margin-top: 28px; }
+    h4 { margin-top: 22px; }
+    p { margin: 10px 0 16px; }
+    .lead { font-size: 18px; opacity: .96; }
+    .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 24px;
+        margin: 20px 0;
+        box-shadow: 0 3px 12px rgba(0,0,0,.05);
+    }
+    .toc a {
+        color: var(--accent);
+        text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+    .note, .success {
+        padding: 16px 18px;
+        border-radius: 10px;
+        margin: 18px 0;
+    }
+    .note { background: var(--note); border-left: 5px solid #f9a825; }
+    .success { background: var(--success); border-left: 5px solid #43a047; }
+    code {
+        font-family: Consolas, "Courier New", monospace;
+        background: #eef0f4;
+        padding: 2px 5px;
+        border-radius: 4px;
+    }
+    pre {
+        background: var(--code);
+        color: #f2f2f2;
+        padding: 18px;
+        border-radius: 10px;
+        overflow-x: auto;
+        font: 14px/1.55 Consolas, "Courier New", monospace;
+        margin: 14px 0 20px;
+    }
+    .diagram {
+        font-family: Consolas, monospace;
+        background: #fafafa;
+        border: 1px dashed #c5c9d3;
+        padding: 16px;
+        border-radius: 10px;
+        white-space: pre-wrap;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 18px 0;
+        background: white;
+    }
+    th, td {
+        border: 1px solid var(--border);
+        padding: 11px 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+    th { background: var(--accent2); }
+    .step {
+        border-left: 4px solid var(--accent);
+        padding-left: 16px;
+        margin: 24px 0;
+    }
+    .badge {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: var(--accent2);
+        color: #283593;
+        font-weight: bold;
+        font-size: 13px;
+    }
+    footer {
+        margin-top: 48px;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+    }
+    @media (max-width: 700px) {
+        header { padding: 28px 22px; }
+        h1 { font-size: 27px; }
+        .container { padding: 18px 12px 40px; }
+        pre { font-size: 12px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <h1>Пошаговое руководство по созданию 3 версий тестового калькулятора</h1>
+    <p class="lead">Kotlin + Jetpack Compose + Material 3</p>
+    <p>Практическое руководство на основе предоставленного исходного материала: от базовой компоновки Row/Column до интерфейса Material 3 с LazyVerticalGrid и GridItemSpan.</p>
+</header>
+
+<section class="card toc">
+    <h2 style="margin-top:0">Содержание</h2>
+    <ol>
+        <li><a href="#intro">Что создаём</a></li>
+        <li><a href="#project">Настройка проекта</a></li>
+        <li><a href="#v1">Версия 1 — Row + Column</a></li>
+        <li><a href="#v2">Версия 2 — LazyVerticalGrid</a></li>
+        <li><a href="#v3">Версия 3 — Material 3 + GridItemSpan</a></li>
+        <li><a href="#comparison">Сравнение версий</a></li>
+        <li><a href="#testing">Пошаговое тестирование</a></li>
+        <li><a href="#next">Следующие шаги</a></li>
+    </ol>
+</section>
+
+<section id="intro">
+<h2>1. Что создаём</h2>
+<div class="card">
+<p>Руководство предусматривает три последовательные версии тестового калькулятора.</p>
+<table>
+<tr><th>Версия</th><th>Основной подход</th><th>Что изучаем</th></tr>
+<tr><td>V1</td><td><code>Row</code> + <code>Column</code></td><td>Базовые строительные блоки Compose и <code>Modifier.weight()</code></td></tr>
+<tr><td>V2</td><td><code>LazyVerticalGrid</code></td><td>Генерацию интерфейса из списка данных</td></tr>
+<tr><td>V3</td><td>Material 3 + <code>GridItemSpan</code></td><td>Темизацию, категории кнопок и элементы разной ширины</td></tr>
+</table>
+<div class="note"><strong>Важно:</strong> исходный материал прежде всего посвящён UI. В обработчиках кнопок логика вычислений обозначена как «логика позже», поэтому эти версии следует рассматривать как тестовые интерфейсы.</div>
+</div>
+</section>
+
+<section id="project">
+<h2>2. Настройка проекта</h2>
+<div class="step">
+<h3>Шаг 1. Создайте новый проект</h3>
+<ol>
+<li>Откройте <strong>Android Studio</strong>.</li>
+<li>Выберите <strong>New Project</strong>.</li>
+<li>Выберите шаблон <strong>Empty Activity</strong> с Jetpack Compose.</li>
+<li>Назовите проект, например <code>CalculatorUIPractice</code>.</li>
+<li>Выберите <strong>Kotlin</strong>.</li>
+<li>Нажмите <strong>Finish</strong>.</li>
+</ol>
+</div>
+
+<div class="step">
+<h3>Шаг 2. Откройте MainActivity.kt</h3>
+<p>Основной UI размещается внутри или рядом с Compose-функциями. Для тестирования версий достаточно менять вызов внутри <code>setContent</code>:</p>
+<pre><code>CalculatorV1()</code></pre>
+<p>на:</p>
+<pre><code>CalculatorV2()</code></pre>
+<p>или:</p>
+<pre><code>CalculatorV3()</code></pre>
+</div>
+</section>
+
+<section id="v1">
+<h2>3. Версия 1 — основа: Row и Column</h2>
+<div class="card">
+<p><span class="badge">Цель V1</span></p>
+<p>Понять работу вертикального <code>Column</code>, горизонтального <code>Row</code> и <code>Modifier.weight()</code>. Кнопки здесь создаются вручную.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 1. Создайте CalculatorV1</h3>
+<pre><code>@Composable
+fun CalculatorV1() {
+    // Здесь будет код калькулятора
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 2. Создайте основной Column</h3>
+<pre><code>Column(
+    modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)
+) {
+    // Дисплей и клавиатура
+}</code></pre>
+<p><code>fillMaxSize()</code> занимает весь экран, а <code>padding(16.dp)</code> создаёт отступы от краёв.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 3. Добавьте дисплей</h3>
+<pre><code>Text(
+    text = "0",
+    fontSize = 64.sp,
+    textAlign = TextAlign.End,
+    modifier = Modifier
+        .fillMaxWidth()
+        .weight(2f)
+        .padding(bottom = 16.dp),
+    maxLines = 1
+)</code></pre>
+<p>Дисплей получает <code>weight(2f)</code>, то есть две части доступного вертикального пространства.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 4. Создайте область клавиатуры</h3>
+<pre><code>Column(
+    modifier = Modifier.weight(3f),
+    verticalArrangement = Arrangement.spacedBy(8.dp)
+) {
+    // Ряды кнопок
+}</code></pre>
+<p>Получается соотношение: дисплей — 2 части, клавиатура — 3 части.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 5. Добавьте ряд кнопок</h3>
+<pre><code>Row(
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+    modifier = Modifier.weight(1f)
+) {
+    CalcButtonV1("7", Modifier.weight(1f))
+    CalcButtonV1("8", Modifier.weight(1f))
+    CalcButtonV1("9", Modifier.weight(1f))
+    CalcButtonV1("÷", Modifier.weight(1f))
+}</code></pre>
+<p>Все четыре кнопки получают одинаковый вес и поэтому занимают одинаковую ширину.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 6. Создайте компонент кнопки</h3>
+<pre><code>@Composable
+fun CalcButtonV1(
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = { /* Логика будет позже */ },
+        modifier = modifier.fillMaxHeight(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(
+            text = label,
+            fontSize = 24.sp
+        )
+    }
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 7. Создайте остальные ряды</h3>
+<div class="diagram">┌─────┬─────┬─────┬─────┐
+│  7  │  8  │  9  │  ÷  │
+├─────┼─────┼─────┼─────┤
+│  4  │  5  │  6  │  ×  │
+├─────┼─────┼─────┼─────┤
+│  1  │  2  │  3  │  -  │
+├─────┼─────┼─────┼─────┤
+│  0  │  .  │  =  │  +  │
+└─────┴─────┴─────┴─────┘</div>
+</div>
+
+<div class="step">
+<h3>Шаг 8. Подключите V1</h3>
+<pre><code>setContent {
+    CalculatorV1()
+}</code></pre>
+</div>
+
+<div class="success"><strong>Проверка V1:</strong> должен отображаться большой дисплей и клавиатура из рядов одинаковых кнопок. Нажатие пока не выполняет вычислений.</div>
+</section>
+
+<section id="v2">
+<h2>4. Версия 2 — управляемая данными сетка</h2>
+<div class="card">
+<p><span class="badge">Цель V2</span></p>
+<p>Вместо ручного создания каждой кнопки используется список данных и <code>LazyVerticalGrid</code>. Это отделяет данные от UI и уменьшает количество повторяющегося кода.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 1. Определите список кнопок</h3>
+<pre><code>val buttons = listOf(
+    "C", "±", "%", "÷",
+    "7", "8", "9", "×",
+    "4", "5", "6", "-",
+    "1", "2", "3", "+",
+    "0", ".", "="
+)</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 2. Создайте CalculatorV2</h3>
+<pre><code>@Composable
+fun CalculatorV2() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Дисплей и сетка
+    }
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 3. Добавьте дисплей</h3>
+<pre><code>val displayText = "123.45"
+
+Text(
+    text = displayText,
+    fontSize = 64.sp,
+    modifier = Modifier
+        .fillMaxWidth()
+        .weight(1f)
+        .padding(16.dp),
+    textAlign = TextAlign.End,
+    maxLines = 1
+)</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 4. Создайте LazyVerticalGrid</h3>
+<pre><code>LazyVerticalGrid(
+    columns = GridCells.Fixed(4),
+    modifier = Modifier.weight(3f),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp)
+) {
+    items(buttons) { label ->
+        Button(
+            onClick = { /* Логика позже */ },
+            modifier = Modifier
+                .height(70.dp)
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(
+                text = label,
+                fontSize = 24.sp
+            )
+        }
+    }
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 5. Подключите V2</h3>
+<pre><code>setContent {
+    CalculatorV2()
+}</code></pre>
+</div>
+
+<div class="success"><strong>Проверка V2:</strong> сетка должна содержать четыре колонки, а кнопки должны автоматически создаваться из списка <code>buttons</code>. Изменение списка должно менять состав UI.</div>
+</section>
+
+<section id="v3">
+<h2>5. Версия 3 — профессиональный Material 3 UI</h2>
+<div class="card">
+<p><span class="badge">Цель V3</span></p>
+<p>Добавляются Material 3, категории кнопок, тематические цвета и возможность сделать кнопку «0» шириной в две колонки.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 1. Создайте модель кнопки</h3>
+<pre><code>data class CalcButton(
+    val label: String,
+    val span: Int = 1,
+    val type: ButtonType = ButtonType.NUMBER
+)</code></pre>
+<p>Теперь каждая кнопка имеет название, ширину в колонках и тип.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 2. Создайте ButtonType</h3>
+<pre><code>enum class ButtonType {
+    NUMBER,
+    OPERATOR,
+    UTILITY,
+    EQUALS
+}</code></pre>
+<table>
+<tr><th>Тип</th><th>Пример</th></tr>
+<tr><td><code>NUMBER</code></td><td>0–9</td></tr>
+<tr><td><code>OPERATOR</code></td><td>+, -, ×, ÷</td></tr>
+<tr><td><code>UTILITY</code></td><td>C, ±, %</td></tr>
+<tr><td><code>EQUALS</code></td><td>=</td></tr>
+</table>
+</div>
+
+<div class="step">
+<h3>Шаг 3. Создайте список кнопок</h3>
+<pre><code>val buttons = listOf(
+    CalcButton("C", type = ButtonType.UTILITY),
+    CalcButton("±", type = ButtonType.UTILITY),
+    CalcButton("%", type = ButtonType.UTILITY),
+    CalcButton("÷", type = ButtonType.OPERATOR),
+
+    CalcButton("7"),
+    CalcButton("8"),
+    CalcButton("9"),
+    CalcButton("×", type = ButtonType.OPERATOR),
+
+    CalcButton("4"),
+    CalcButton("5"),
+    CalcButton("6"),
+    CalcButton("-", type = ButtonType.OPERATOR),
+
+    CalcButton("1"),
+    CalcButton("2"),
+    CalcButton("3"),
+    CalcButton("+", type = ButtonType.OPERATOR),
+
+    CalcButton("0", span = 2),
+    CalcButton("."),
+    CalcButton("=", type = ButtonType.EQUALS)
+)</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 4. Создайте CalculatorV3</h3>
+<pre><code>@Composable
+fun CalculatorV3() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                MaterialTheme.colorScheme.background
+            )
+            .padding(16.dp)
+    ) {
+        // Дисплей
+        // Сетка
+    }
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 5. Добавьте Material 3 дисплей</h3>
+<pre><code>Text(
+    text = "8,540.00",
+    style = MaterialTheme.typography.displayLarge,
+    color = MaterialTheme.colorScheme.onBackground,
+    modifier = Modifier
+        .fillMaxWidth()
+        .weight(1f)
+        .padding(horizontal = 8.dp),
+    textAlign = TextAlign.End,
+    maxLines = 1
+)</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 6. Создайте сетку</h3>
+<pre><code>LazyVerticalGrid(
+    columns = GridCells.Fixed(4),
+    modifier = Modifier.weight(3f),
+    verticalArrangement = Arrangement.spacedBy(12.dp),
+    horizontalArrangement = Arrangement.spacedBy(12.dp)
+) {
+    // Кнопки
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 7. Реализуйте GridItemSpan</h3>
+<pre><code>items(buttons) { button ->
+
+    val spanModifier = if (button.span > 1) {
+        Modifier.gridItemSpan(button.span)
+    } else {
+        Modifier
+    }
+
+    CalculatorButtonV3(
+        label = button.label,
+        type = button.type,
+        modifier = spanModifier.height(72.dp)
+    )
+}</code></pre>
+<p>Для обычной кнопки <code>span = 1</code>. Для кнопки «0» задано <code>span = 2</code>, поэтому она занимает две колонки.</p>
+</div>
+
+<div class="step">
+<h3>Шаг 8. Создайте CalculatorButtonV3</h3>
+<pre><code>@Composable
+fun CalculatorButtonV3(
+    label: String,
+    type: ButtonType,
+    modifier: Modifier = Modifier
+) {
+    // Определение оформления
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 9. Определите цвета по типу кнопки</h3>
+<pre><code>val containerColor = when (type) {
+    ButtonType.OPERATOR ->
+        MaterialTheme.colorScheme.primaryContainer
+
+    ButtonType.EQUALS ->
+        MaterialTheme.colorScheme.primary
+
+    ButtonType.UTILITY ->
+        MaterialTheme.colorScheme.secondaryContainer
+
+    ButtonType.NUMBER ->
+        MaterialTheme.colorScheme.surfaceVariant
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 10. Определите цвет текста</h3>
+<pre><code>val contentColor = when (type) {
+    ButtonType.EQUALS ->
+        MaterialTheme.colorScheme.onPrimary
+
+    else ->
+        MaterialTheme.colorScheme.onSurface
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 11. Создайте Material 3 Button</h3>
+<pre><code>Button(
+    onClick = { /* Логика позже */ },
+    modifier = modifier.fillMaxWidth(),
+    colors = ButtonDefaults.buttonColors(
+        containerColor = containerColor,
+        contentColor = contentColor
+    ),
+    shape = MaterialTheme.shapes.extraLarge
+) {
+    Text(
+        text = label,
+        style = MaterialTheme.typography.headlineMedium,
+        color = contentColor
+    )
+}</code></pre>
+</div>
+
+<div class="step">
+<h3>Шаг 12. Подключите V3</h3>
+<pre><code>setContent {
+    CalculatorUIPracticeTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            CalculatorV3()
+        }
+    }
+}</code></pre>
+</div>
+
+<div class="success"><strong>Проверка V3:</strong> интерфейс должен использовать Material 3, разные стили кнопок для разных типов и кнопку «0», занимающую две колонки.</div>
+</section>
+
+<section id="comparison">
+<h2>6. Сравнение трёх версий</h2>
+<table>
+<tr><th>Характеристика</th><th>V1</th><th>V2</th><th>V3</th></tr>
+<tr><td>Row / Column</td><td>Да</td><td>Да</td><td>Да</td></tr>
+<tr><td>weight()</td><td>Да</td><td>Да</td><td>Да</td></tr>
+<tr><td>Ручное создание кнопок</td><td>Да</td><td>Нет</td><td>Нет</td></tr>
+<tr><td>LazyVerticalGrid</td><td>Нет</td><td>Да</td><td>Да</td></tr>
+<tr><td>Кнопки из списка данных</td><td>Нет</td><td>Да</td><td>Да</td></tr>
+<tr><td>Категории кнопок</td><td>Нет</td><td>Нет</td><td>Да</td></tr>
+<tr><td>Разная ширина кнопок</td><td>Нет</td><td>Нет</td><td>Да</td></tr>
+<tr><td>GridItemSpan</td><td>Нет</td><td>Нет</td><td>Да</td></tr>
+<tr><td>Material 3 темизация</td><td>Базовая</td><td>Базовая</td><td>Да</td></tr>
+<tr><td>Сложность</td><td>Низкая</td><td>Средняя</td><td>Средняя</td></tr>
+</table>
+</section>
+
+<section id="testing">
+<h2>7. Пошаговое тестирование</h2>
+
+<div class="card">
+<h3>Тест V1</h3>
+<ol>
+<li>Запустите приложение.</li>
+<li>Проверьте заполнение экрана.</li>
+<li>Проверьте дисплей.</li>
+<li>Проверьте четыре колонки кнопок.</li>
+<li>Проверьте равную ширину кнопок.</li>
+<li>Убедитесь, что элементы не накладываются.</li>
+</ol>
+</div>
+
+<div class="card">
+<h3>Тест V2</h3>
+<ol>
+<li>Замените <code>CalculatorV1()</code> на <code>CalculatorV2()</code>.</li>
+<li>Запустите приложение.</li>
+<li>Проверьте четыре колонки.</li>
+<li>Проверьте все элементы списка.</li>
+<li>Измените список <code>buttons</code> и убедитесь, что UI меняется.</li>
+</ol>
+</div>
+
+<div class="card">
+<h3>Тест V3</h3>
+<ol>
+<li>Замените вызов на <code>CalculatorV3()</code>.</li>
+<li>Запустите приложение.</li>
+<li>Проверьте Material 3 оформление.</li>
+<li>Проверьте разные типы кнопок.</li>
+<li>Проверьте кнопку «0».</li>
+<li>Убедитесь, что «0» занимает две колонки.</li>
+<li>Проверьте отображение на разных размерах экрана.</li>
+</ol>
+</div>
+</section>
+
+<section id="next">
+<h2>8. Следующие шаги</h2>
+<p>После успешного прохождения трёх UI-версий проект можно развивать дальше:</p>
+<ol>
+<li>Поэкспериментировать с размерами, отступами и цветами.</li>
+<li>Проверить интерфейс на разных размерах экрана и при повороте эмулятора.</li>
+<li>Использовать Layout Inspector для поиска проблем компоновки.</li>
+<li>Добавить анимации нажатий.</li>
+<li>Добавить адаптивность для планшетов.</li>
+<li>Добавить поддержку тёмной и светлой темы.</li>
+<li>Вынести состояние и вычисления в ViewModel.</li>
+</ol>
+
+<div class="note">
+<strong>Важно:</strong> следующие шаги выходят за рамки непосредственно приведённого UI-кода трёх версий. В исходном материале ViewModel указана как следующий этап после экспериментов с интерфейсом.
+</div>
+
+<h2>9. Итоговая схема развития</h2>
+<div class="diagram">V1
+Row + Column
+    ↓
+Понимание базовой компоновки
+    ↓
+V2
+LazyVerticalGrid + List
+    ↓
+Разделение данных и UI
+    ↓
+V3
+Material 3 + ButtonType + GridItemSpan
+    ↓
+Профессиональный UI
+    ↓
+Следующий этап
+ViewModel + состояние + вычислительная логика</div>
+
+<h2>10. Минимальный способ переключения версий</h2>
+<p>После создания всех трёх компонентов достаточно менять один вызов:</p>
+<pre><code>setContent {
+    CalculatorUIPracticeTheme {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            CalculatorV3()
+            // или CalculatorV1()
+            // или CalculatorV2()
+        }
+    }
+}</code></pre>
+</section>
+
+<footer>
+    Руководство подготовлено на основе предоставленного пользователем материала о создании калькулятора на Jetpack Compose и Material 3.
+</footer>
+
+</div>
+</body>
+</html>

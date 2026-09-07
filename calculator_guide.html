@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Руководство: создание калькулятора на Jetpack Compose</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #171a23;
+    --panel-border: #262a38;
+    --accent: #6c7fe8;
+    --accent-soft: #2a2f52;
+    --text: #e6e8f0;
+    --text-dim: #9aa0b4;
+    --code-bg: #10121a;
+    --good: #5fd68f;
+    --bad: #f07272;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    padding: 56px 24px 40px;
+    text-align: center;
+    background: radial-gradient(circle at top, var(--accent-soft), var(--bg) 70%);
+    border-bottom: 1px solid var(--panel-border);
+  }
+  header h1 {
+    font-size: 2.1rem;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+  }
+  header p {
+    color: var(--text-dim);
+    max-width: 640px;
+    margin: 0 auto;
+    font-size: 1.05rem;
+  }
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 100px;
+  }
+  .stage {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 28px;
+  }
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .stage-num {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #0f1117;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+  .stage h2 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+  .stage p {
+    color: var(--text-dim);
+    margin: 10px 0;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+  }
+  .tag.bug { background: rgba(240,114,114,0.15); color: var(--bad); }
+  .tag.fix { background: rgba(95,214,143,0.15); color: var(--good); }
+  .tag.feature { background: rgba(108,127,232,0.15); color: var(--accent); }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    margin: 14px 0;
+  }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  @media (max-width: 640px) {
+    .before-after { grid-template-columns: 1fr; }
+  }
+  .col-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .col-label.before { color: var(--bad); }
+  .col-label.after { color: var(--good); }
+  .trace {
+    background: var(--code-bg);
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin: 14px 0;
+  }
+  ul {
+    color: var(--text-dim);
+    padding-left: 22px;
+  }
+  li { margin-bottom: 6px; }
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    padding-bottom: 40px;
+  }
+  .toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .toc a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid var(--panel-border);
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .toc a:hover { color: var(--text); border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Калькулятор на Jetpack Compose</h1>
+  <p>Пошаговое руководство: от статичной вёрстки до работающего калькулятора с обработкой ошибок отображения.</p>
+  <nav class="toc">
+    <a href="#stage1">1. Каркас UI</a>
+    <a href="#stage2">2. Логика вычислений</a>
+    <a href="#stage3">3. Баг цепочки операций</a>
+    <a href="#stage4">4. Форматирование чисел</a>
+    <a href="#stage5">5. Адаптивный шрифт</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="stage" id="stage1">
+    <div class="stage-header">
+      <div class="stage-num">1</div>
+      <h2>Каркас интерфейса</h2>
+    </div>
+    <span class="tag feature">UI</span>
+    <p>Начинаем с чисто визуальной раскладки: <code>Column</code> с полем результата и сеткой кнопок 4×4. Кнопки ничего не делают — <code>onClick = { }</code>.</p>
+    <pre><code>@Composable
+fun CalcButtonV1(label: String, modifier: Modifier = Modifier) {
+    Button(
+        onClick = { },
+        modifier = modifier.fillMaxHeight(),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(text = label, fontSize = 24.sp)
+    }
+}</code></pre>
+    <p>На этом этапе экран выглядит как калькулятор, но не считает — это чистый макет.</p>
+  </section>
+
+  <section class="stage" id="stage2">
+    <div class="stage-header">
+      <div class="stage-num">2</div>
+      <h2>Добавление состояния и логики вычислений</h2>
+    </div>
+    <span class="tag feature">Логика</span>
+    <p>Вводим четыре переменные состояния через <code>remember { mutableStateOf(...) }</code>:</p>
+    <ul>
+      <li><code>displayText</code> — то, что показано на экране / вводится сейчас</li>
+      <li><code>operand1</code> — первое число операции</li>
+      <li><code>pendingOperator</code> — ожидающий применения оператор</li>
+      <li><code>resetDisplayOnNextInput</code> — флаг «следующая цифра начинает новое число»</li>
+    </ul>
+    <p>Реализуем обработчики: <code>onDigit</code>, <code>onDecimal</code>, <code>onClear</code>, <code>onOperator</code>, <code>onEquals</code>, и функцию <code>applyOperator</code> для четырёх арифметических действий. Также добавлена кнопка <code>=</code>, которой не хватало в исходной раскладке.</p>
+    <pre><code>fun applyOperator(op1: Double, op2: Double, operator: String): Double {
+    return when (operator) {
+        "+" -> op1 + op2
+        "-" -> op1 - op2
+        "×" -> op1 * op2
+        "÷" -> if (op2 != 0.0) op1 / op2 else Double.NaN
+        else -> op2
+    }
+}</code></pre>
+  </section>
+
+  <section class="stage" id="stage3">
+    <div class="stage-header">
+      <div class="stage-num">3</div>
+      <h2>Баг: цепочка операций склеивала цифры</h2>
+    </div>
+    <span class="tag bug">Баг</span>
+    <span class="tag fix">Исправлено</span>
+    <p><strong>Симптом:</strong> ввод <code>2 + 3 =</code> давал <code>25</code> вместо <code>5</code>.</p>
+    <p><strong>Причина:</strong> после нажатия оператора экран не сбрасывался. Следующая цифра дописывалась к старому числу: <code>"2"</code> + <code>"3"</code> → <code>"23"</code>.</p>
+    <div class="trace">
+2 → displayText = "2"<br>
++ → operand1 = 2, displayText остаётся "2"  <span style="color:var(--bad)">// ошибка</span><br>
+3 → displayText = "2" + "3" = "23"  <span style="color:var(--bad)">// должно быть "3"</span>
+    </div>
+    <p><strong>Исправление:</strong> в <code>onOperator</code> теперь выставляется <code>resetDisplayOnNextInput = true</code>, а <code>onDigit</code> проверяет этот флаг перед дописыванием цифры.</p>
+    <div class="before-after">
+      <div>
+        <div class="col-label before">До</div>
+        <pre><code>fun onOperator(op: String) {
+    ...
+    pendingOperator = op
+}</code></pre>
+      </div>
+      <div>
+        <div class="col-label after">После</div>
+        <pre><code>fun onOperator(op: String) {
+    ...
+    pendingOperator = op
+    resetDisplayOnNextInput = true
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="stage4">
+    <div class="stage-header">
+      <div class="stage-num">4</div>
+      <h2>Форматирование результата (округление)</h2>
+    </div>
+    <span class="tag bug">Баг</span>
+    <span class="tag fix">Исправлено</span>
+    <p><strong>Симптом:</strong> <code>7 ÷ 9</code> выводил <code>0.7777777777777778</code> — полная точность <code>Double</code>, не помещающаяся на экран.</p>
+    <p><strong>Исправление:</strong> округляем до 8 знаков после запятой и убираем лишние нули на конце. Используем <code>Locale.US</code>, чтобы разделитель дробной части всегда был точкой независимо от локали устройства.</p>
+    <pre><code>fun formatResult(value: Double): String {
+    if (value.isNaN()) return "Error"
+    if (value == value.toLong().toDouble()) return value.toLong().toString()
+
+    val rounded = String.format(Locale.US, "%.8f", value)
+        .trimEnd('0')
+        .trimEnd('.')
+    return rounded
+}</code></pre>
+    <div class="trace">
+7 ÷ 9 = 0.7777777777777778<br>
+→ "%.8f" → "0.77777778"<br>
+→ обрезка нулей: не требуется<br>
+→ итог на экране: <strong>0.77777778</strong>
+    </div>
+  </section>
+
+  <section class="stage" id="stage5">
+    <div class="stage-header">
+      <div class="stage-num">5</div>
+      <h2>Адаптивный размер шрифта</h2>
+    </div>
+    <span class="tag bug">Баг</span>
+    <span class="tag fix">Исправлено</span>
+    <p><strong>Симптом:</strong> даже после округления длинные числа (например <code>0.77777778</code>) накладывались друг на друга при шрифте 64.sp — <code>maxLines = 1</code> сам по себе не решает проблему переполнения ширины.</p>
+    <p><strong>Исправление:</strong> размер шрифта зависит от длины строки, плюс <code>TextOverflow.Ellipsis</code> как страховка на случай ещё более длинных чисел.</p>
+    <pre><code>Text(
+    text = displayText,
+    fontSize = when {
+        displayText.length > 12 -> 32.sp
+        displayText.length > 9  -> 40.sp
+        displayText.length > 6  -> 52.sp
+        else -> 64.sp
+    },
+    textAlign = TextAlign.End,
+    overflow = TextOverflow.Ellipsis,
+    maxLines = 1
+)</code></pre>
+    <p>Итог: короткие числа остаются крупными (64.sp), а длинные результаты вроде <code>0.77777778</code> уменьшаются до 40.sp и помещаются в одну строку без наложения символов.</p>
+  </section>
+
+  <section class="stage">
+    <div class="stage-header">
+      <div class="stage-num">✓</div>
+      <h2>Итоговое состояние</h2>
+    </div>
+    <p>После пяти этапов калькулятор:</p>
+    <ul>
+      <li>Выполняет <code>+ − × ÷</code> с поддержкой цепочки операций (<code>5 + 3 + 2 =</code>)</li>
+      <li>Корректно сбрасывает ввод после оператора и после <code>=</code></li>
+      <li>Показывает <code>Error</code> при делении на ноль вместо краша</li>
+      <li>Округляет дробные результаты до 8 знаков вместо полной точности <code>Double</code></li>
+      <li>Масштабирует шрифт под длину числа, чтобы избежать наложения цифр</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  Руководство по разработке CalculatorUIPractice · Jetpack Compose
+</footer>
+
+</body>
+</html>
