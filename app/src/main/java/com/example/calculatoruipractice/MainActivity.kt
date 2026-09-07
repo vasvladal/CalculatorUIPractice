@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -56,6 +57,15 @@ fun CalculatorV1() {
             modifier = Modifier.weight(3f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                CalcButtonV1("7", Modifier.weight(1f))
+                CalcButtonV1("8", Modifier.weight(1f))
+                CalcButtonV1("9", Modifier.weight(1f))
+                CalcButtonV1("÷", Modifier.weight(1f))
+            }
         }
     }
 }
