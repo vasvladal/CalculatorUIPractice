@@ -23,7 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview  // ← ВАЖНО: импорт Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.calculatoruipractice.ui.theme.CalculatorUIPracticeTheme
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CalculatorUIPracticeTheme {
-                Scaffold( modifier = Modifier.fillMaxSize() ) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CalculatorV1()
                 }
             }
@@ -43,6 +43,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// 👇 ДОБАВЛЕН PREVIEW
+@Preview(
+    showBackground = true,
+    name = "Calculator Preview",
+    device = "id:pixel_5"
+)
 @Composable
 fun CalculatorV1() {
     // состояние калькулятора
@@ -66,7 +72,6 @@ fun CalculatorV1() {
     fun formatResult(value: Double): String {
         if (value.isNaN()) return "Error"
         if (value == value.toLong().toDouble()) return value.toLong().toString()
-
         // Round to 8 decimal places, then trim trailing zeros / dangling dot
         val rounded = String.format(Locale.US, "%.8f", value)
             .trimEnd('0')
