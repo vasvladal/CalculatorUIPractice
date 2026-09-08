@@ -3,209 +3,480 @@ package com.example.calculatoruipractice
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview  // ← ВАЖНО: импорт Preview
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.calculatoruipractice.ui.theme.CalculatorUIPracticeTheme
-import java.util.Locale
+import com.example.calculatoruipractice.ui.theme.YourCalculatorAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            CalculatorUIPracticeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    CalculatorV1()
-                }
+            YourCalculatorAppTheme {
+                CalculatorApp()
             }
         }
     }
 }
 
-// 👇 ДОБАВЛЕН PREVIEW
-@Preview(
-    showBackground = true,
-    name = "Calculator Preview",
-    device = "id:pixel_5"
-)
 @Composable
-fun CalculatorV1() {
-    // состояние калькулятора
-    var displayText by remember { mutableStateOf("0") }
-    var operand1 by remember { mutableStateOf<Double?>(null) }
-    var pendingOperator by remember { mutableStateOf<String?>(null) }
-    // true when the NEXT digit press should start a brand-new number
-    // instead of appending to what's on screen (set after an operator or "=")
-    var resetDisplayOnNextInput by remember { mutableStateOf(false) }
+fun CalculatorApp() {
+    var input by remember { mutableStateOf("") }
+    var result by remember { mutableStateOf("") }
+    var firstNumber by remember { mutableDoubleStateOf(0.0) }
+    var operation by remember { mutableStateOf("") }
+    var isNewNumber by remember { mutableStateOf(true) }
 
-    fun applyOperator(op1: Double, op2: Double, operator: String): Double {
-        return when (operator) {
-            "+" -> op1 + op2
-            "-" -> op1 - op2
-            "×" -> op1 * op2
-            "÷" -> if (op2 != 0.0) op1 / op2 else Double.NaN
-            else -> op2
-        }
-    }
-
-    fun formatResult(value: Double): String {
-        if (value.isNaN()) return "Error"
-        if (value == value.toLong().toDouble()) return value.toLong().toString()
-        // Round to 8 decimal places, then trim trailing zeros / dangling dot
-        val rounded = String.format(Locale.US, "%.8f", value)
-            .trimEnd('0')
-            .trimEnd('.')
-        return rounded
-    }
-
-    fun onDigit(digit: String) {
-        if (resetDisplayOnNextInput || displayText == "0") {
-            displayText = digit
-            resetDisplayOnNextInput = false
-        } else {
-            displayText += digit
-        }
-    }
-
-    fun onDecimal() {
-        if (resetDisplayOnNextInput) {
-            displayText = "0."
-            resetDisplayOnNextInput = false
-        } else if (!displayText.contains(".")) {
-            displayText += "."
-        }
-    }
-
-    fun onClear() {
-        displayText = "0"
-        operand1 = null
-        pendingOperator = null
-        resetDisplayOnNextInput = false
-    }
-
-    fun onOperator(op: String) {
-        val currentValue = displayText.toDoubleOrNull() ?: 0.0
-        if (operand1 != null && pendingOperator != null && !resetDisplayOnNextInput) {
-            // chain operations: evaluate what's pending first, e.g. 5 + 3 + 2
-            val result = applyOperator(operand1!!, currentValue, pendingOperator!!)
-            operand1 = result
-            displayText = formatResult(result)
-        } else {
-            operand1 = currentValue
-        }
-        pendingOperator = op
-        resetDisplayOnNextInput = true
-    }
-
-    fun onEquals() {
-        val currentValue = displayText.toDoubleOrNull() ?: 0.0
-        if (operand1 != null && pendingOperator != null) {
-            val result = applyOperator(operand1!!, currentValue, pendingOperator!!)
-            displayText = formatResult(result)
-            operand1 = null
-            pendingOperator = null
-            resetDisplayOnNextInput = true
-        }
-    }
-
-    // интерфейс калькулятора
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFF1C1C1E)
     ) {
-        Text(
-            text = displayText,
-            fontSize = when {
-                displayText.length > 12 -> 32.sp
-                displayText.length > 9 -> 40.sp
-                displayText.length > 6 -> 52.sp
-                else -> 64.sp
-            },
-            textAlign = TextAlign.End,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(2f)
-                .padding(bottom = 16.dp),
-            maxLines = 1
-        )
-
         Column(
-            modifier = Modifier.weight(3f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            // Row 1
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
-                CalcButtonV1("7", Modifier.weight(1f)) { onDigit("7") }
-                CalcButtonV1("8", Modifier.weight(1f)) { onDigit("8") }
-                CalcButtonV1("9", Modifier.weight(1f)) { onDigit("9") }
-                CalcButtonV1("÷", Modifier.weight(1f)) { onOperator("÷") }
+            Text(
+                text = "🧮 КАЛЬКУЛЯТОР",
+                color = Color.White,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                textAlign = TextAlign.Center
+            )
+
+            TextField(
+                value = input,
+                onValueChange = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp),
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize = 32.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.End
+                ),
+                placeholder = {
+                    Text(
+                        text = "0",
+                        color = Color.Gray,
+                        fontSize = 32.sp
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFF2C2C2E),
+                    unfocusedContainerColor = Color(0xFF2C2C2E),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp),
+                readOnly = true
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = result,
+                color = Color(0xFFFF9500),
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .background(Color(0xFF2C2C2E), RoundedCornerShape(12.dp))
+                    .padding(16.dp),
+                textAlign = TextAlign.End
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            HorizontalDivider(
+                color = Color(0xFF3A3A3C),
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            // ===== РЯД 1 =====
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),  // 👈 ВЫСОТА ЗДЕСЬ
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CalculatorButton(
+                    text = "7",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "7"
+                            isNewNumber = false
+                        } else {
+                            input += "7"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)  // 👈 ВЕС ПЕРЕДАЁТСЯ СЮДА
+                )
+                CalculatorButton(
+                    text = "8",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "8"
+                            isNewNumber = false
+                        } else {
+                            input += "8"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                CalculatorButton(
+                    text = "9",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "9"
+                            isNewNumber = false
+                        } else {
+                            input += "9"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                OperatorButton(
+                    text = "÷",
+                    onClick = {
+                        if (input.isNotEmpty()) {
+                            firstNumber = input.toDouble()
+                            operation = "÷"
+                            isNewNumber = true
+                            result = "$firstNumber ÷"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
             }
-            // Row 2
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
-                CalcButtonV1("4", Modifier.weight(1f)) { onDigit("4") }
-                CalcButtonV1("5", Modifier.weight(1f)) { onDigit("5") }
-                CalcButtonV1("6", Modifier.weight(1f)) { onDigit("6") }
-                CalcButtonV1("×", Modifier.weight(1f)) { onOperator("×") }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // ===== РЯД 2 =====
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CalculatorButton(
+                    text = "4",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "4"
+                            isNewNumber = false
+                        } else {
+                            input += "4"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                CalculatorButton(
+                    text = "5",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "5"
+                            isNewNumber = false
+                        } else {
+                            input += "5"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                CalculatorButton(
+                    text = "6",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "6"
+                            isNewNumber = false
+                        } else {
+                            input += "6"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                OperatorButton(
+                    text = "×",
+                    onClick = {
+                        if (input.isNotEmpty()) {
+                            firstNumber = input.toDouble()
+                            operation = "×"
+                            isNewNumber = true
+                            result = "$firstNumber ×"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
             }
-            // Row 3
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
-                CalcButtonV1("1", Modifier.weight(1f)) { onDigit("1") }
-                CalcButtonV1("2", Modifier.weight(1f)) { onDigit("2") }
-                CalcButtonV1("3", Modifier.weight(1f)) { onDigit("3") }
-                CalcButtonV1("-", Modifier.weight(1f)) { onOperator("-") }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // ===== РЯД 3 =====
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CalculatorButton(
+                    text = "1",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "1"
+                            isNewNumber = false
+                        } else {
+                            input += "1"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                CalculatorButton(
+                    text = "2",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "2"
+                            isNewNumber = false
+                        } else {
+                            input += "2"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                CalculatorButton(
+                    text = "3",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "3"
+                            isNewNumber = false
+                        } else {
+                            input += "3"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                OperatorButton(
+                    text = "−",
+                    onClick = {
+                        if (input.isNotEmpty()) {
+                            firstNumber = input.toDouble()
+                            operation = "−"
+                            isNewNumber = true
+                            result = "$firstNumber −"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
             }
-            // Row 4
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
-                CalcButtonV1("C", Modifier.weight(1f)) { onClear() }
-                CalcButtonV1("0", Modifier.weight(1f)) { onDigit("0") }
-                CalcButtonV1(".", Modifier.weight(1f)) { onDecimal() }
-                CalcButtonV1("+", Modifier.weight(1f)) { onOperator("+") }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // ===== РЯД 4 =====
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                CalculatorButton(
+                    text = "0",
+                    onClick = {
+                        if (isNewNumber) {
+                            input = "0"
+                            isNewNumber = false
+                        } else {
+                            input += "0"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                CalculatorButton(
+                    text = ".",
+                    onClick = {
+                        if (!input.contains(".")) {
+                            input += "."
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                EqualsButton(
+                    onClick = {
+                        if (operation.isNotEmpty() && input.isNotEmpty()) {
+                            try {
+                                val secondNumber = input.toDouble()
+                                var calculationResult = 0.0
+
+                                when (operation) {
+                                    "÷" -> {
+                                        if (secondNumber != 0.0) {
+                                            calculationResult = firstNumber / secondNumber
+                                        } else {
+                                            result = "Ошибка: деление на 0"
+                                            return@EqualsButton
+                                        }
+                                    }
+                                    "×" -> calculationResult = firstNumber * secondNumber
+                                    "−" -> calculationResult = firstNumber - secondNumber
+                                    "+" -> calculationResult = firstNumber + secondNumber
+                                }
+
+                                val resultText = if (calculationResult == calculationResult.toLong().toDouble()) {
+                                    calculationResult.toLong().toString()
+                                } else {
+                                    calculationResult.toString()
+                                }
+
+                                input = resultText
+                                result = "$firstNumber $operation $secondNumber = $resultText"
+                                firstNumber = calculationResult
+                                operation = ""
+                                isNewNumber = true
+                            } catch (_: Exception) {
+                                result = "Ошибка ввода"
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                OperatorButton(
+                    text = "+",
+                    onClick = {
+                        if (input.isNotEmpty()) {
+                            firstNumber = input.toDouble()
+                            operation = "+"
+                            isNewNumber = true
+                            result = "$firstNumber +"
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
             }
-            // Row 5
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
-                CalcButtonV1("=", Modifier.fillMaxWidth()) { onEquals() }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+                    input = ""
+                    result = ""
+                    firstNumber = 0.0
+                    operation = ""
+                    isNewNumber = true
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF3B30)
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    text = "CLEAR",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
 }
 
+// ===== КОМПОНЕНТЫ КНОПОК (БЕЗ weight ВНУТРИ) =====
+
 @Composable
-fun CalcButtonV1(
-    label: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+fun CalculatorButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxHeight(),
-        shape = MaterialTheme.shapes.medium
+        modifier = modifier
+            .fillMaxHeight()  // 👈 ЗАПОЛНЯЕМ ВСЮ ВЫСОТУ ROW
+            .height(70.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF333335)
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = ButtonDefaults.buttonElevation(0.dp)
     ) {
         Text(
-            text = label,
-            fontSize = 24.sp
+            text = text,
+            color = Color.White,
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Medium
         )
+    }
+}
+
+@Composable
+fun OperatorButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxHeight()
+            .height(70.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF2C2C2E)
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = ButtonDefaults.buttonElevation(0.dp)
+    ) {
+        Text(
+            text = text,
+            color = Color(0xFFFF9500),
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
+fun EqualsButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxHeight()
+            .height(70.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFFF9500)
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = ButtonDefaults.buttonElevation(0.dp)
+    ) {
+        Text(
+            text = "=",
+            color = Color.White,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CalculatorPreview() {
+    YourCalculatorAppTheme {
+        CalculatorApp()
     }
 }

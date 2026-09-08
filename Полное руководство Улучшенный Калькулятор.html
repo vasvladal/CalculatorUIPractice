@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Руководство по созданию калькулятора на Android (Jetpack Compose)</title>
+    <style>
+        /* ========== ОБЩИЕ СТИЛИ ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            line-height: 1.7;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            padding: 40px 50px;
+        }
+
+        /* ========== ЗАГОЛОВКИ ========== */
+        h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: #0a0a1a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h1 small {
+            font-size: 16px;
+            font-weight: 400;
+            color: #6b7280;
+            margin-left: 12px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 18px;
+            border-bottom: 3px solid #f0f2f5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0a0a1a;
+            margin-top: 48px;
+            margin-bottom: 16px;
+            padding-left: 14px;
+            border-left: 5px solid #ff9500;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-top: 28px;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        /* ========== ПАРАГРАФЫ И СПИСКИ ========== */
+        p {
+            margin-bottom: 14px;
+            color: #374151;
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 6px;
+            color: #374151;
+        }
+
+        /* ========== КОД ========== */
+        pre {
+            background: #1e1e2e;
+            color: #e4e4e7;
+            padding: 20px 24px;
+            border-radius: 14px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 16px 0;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        pre .comment {
+            color: #6a9955;
+        }
+
+        pre .keyword {
+            color: #c586c0;
+        }
+
+        pre .string {
+            color: #ce9178;
+        }
+
+        pre .function {
+            color: #dcdcaa;
+        }
+
+        pre .number {
+            color: #b5cea8;
+        }
+
+        code {
+            background: #f0f2f5;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            color: #d6336c;
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #b0b0c0;
+            padding: 4px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+        }
+
+        /* ========== ТАБЛИЦЫ ========== */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 16px 0 24px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 18px;
+            border-bottom: 2px solid #e5e7eb;
+            color: #1a1a2e;
+        }
+
+        td {
+            padding: 10px 18px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        tr:hover td {
+            background: #fafbfc;
+        }
+
+        /* ========== БЛОКИ И КАРТОЧКИ ========== */
+        .info-block {
+            background: #f8f9ff;
+            border-left: 4px solid #4f46e5;
+            padding: 16px 22px;
+            border-radius: 10px;
+            margin: 16px 0;
+        }
+
+        .info-block.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .info-block.success {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .info-block.danger {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #ff9500;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 20px;
+            margin-right: 6px;
+        }
+
+        .badge.blue {
+            background: #4f46e5;
+        }
+
+        .badge.green {
+            background: #10b981;
+        }
+
+        .badge.purple {
+            background: #8b5cf6;
+        }
+
+        /* ========== СТРУКТУРА ПРОЕКТА ========== */
+        .project-tree {
+            background: #1e1e2e;
+            color: #d4d4d8;
+            padding: 20px 24px;
+            border-radius: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.9;
+            margin: 16px 0;
+        }
+
+        .project-tree .folder {
+            color: #fbbf24;
+        }
+
+        .project-tree .file {
+            color: #60a5fa;
+        }
+
+        .project-tree .indent {
+            padding-left: 28px;
+        }
+
+        /* ========== НАВИГАЦИЯ ========== */
+        .toc {
+            background: #f8f9fa;
+            padding: 20px 28px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .toc ul {
+            columns: 2;
+            column-gap: 30px;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .toc ul li {
+            padding: 4px 0;
+        }
+
+        .toc ul li a {
+            color: #1a1a2e;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .toc ul li a:hover {
+            border-bottom-color: #ff9500;
+        }
+
+        /* ========== СКРОЛЛ КОДА ========== */
+        .code-scroll {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        /* ========== АДАПТИВ ========== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 26px;
+                flex-wrap: wrap;
+            }
+
+            .toc ul {
+                columns: 1;
+            }
+
+            pre {
+                font-size: 12px;
+                padding: 14px 16px;
+            }
+
+            th, td {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 14px;
+                border-radius: 16px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+        }
+
+        /* ========== КНОПКА НАВЕРХ ========== */
+        .back-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ff9500;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 149, 0, 0.35);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-top:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 28px rgba(255, 149, 0, 0.45);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="top">
+
+        <!-- ============================================================ -->
+        <!-- ЗАГОЛОВОК -->
+        <!-- ============================================================ -->
+        <h1>
+            🧮 Калькулятор на Android
+            <small>Jetpack Compose + Material 3</small>
+        </h1>
+        <div class="subtitle">
+            Полное руководство по созданию приложения-калькулятора с нуля: от идеи до продвинутых функций
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ОГЛАВЛЕНИЕ -->
+        <!-- ============================================================ -->
+        <div class="toc">
+            <h3>📑 Оглавление</h3>
+            <ul>
+                <li><a href="#sec-1">1. Введение</a></li>
+                <li><a href="#sec-2">2. Подготовка и настройка проекта</a></li>
+                <li><a href="#sec-3">3. Структура проекта</a></li>
+                <li><a href="#sec-4">4. Тема с переключением светлой/тёмной</a></li>
+                <li><a href="#sec-5">5. DataStore – сохранение настроек</a></li>
+                <li><a href="#sec-6">6. ViewModel – логика калькулятора</a></li>
+                <li><a href="#sec-7">7. UI – экран калькулятора</a></li>
+                <li><a href="#sec-8">8. Анимированные кнопки</a></li>
+                <li><a href="#sec-9">9. История с прокруткой и анимацией</a></li>
+                <li><a href="#sec-10">10. Жесты для скрытия истории</a></li>
+                <li><a href="#sec-11">11. Экспорт истории в файл</a></li>
+                <li><a href="#sec-12">12. Научные функции</a></li>
+                <li><a href="#sec-13">13. Память (M+, MR, MC)</a></li>
+                <li><a href="#sec-14">14. Запуск и тестирование</a></li>
+                <li><a href="#sec-15">15. Заключение и дальнейшие улучшения</a></li>
+            </ul>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 1. ВВЕДЕНИЕ -->
+        <!-- ============================================================ -->
+        <h2 id="sec-1">1. Введение</h2>
+
+        <p>В этом руководстве мы создадим <strong>полноценный калькулятор</strong> для Android, используя <strong>Jetpack Compose</strong> – современный декларативный UI-фреймворк от Google.</p>
+
+        <div class="info-block success">
+            <strong>✅ Почему Jetpack Compose?</strong><br>
+            • Официальный курс Google – View System перешёл в режим поддержки<br>
+            • На 40–50 % меньше кода по сравнению с XML<br>
+            • Реактивное обновление UI<br>
+            • Лёгкое тестирование и поддержка
+        </div>
+
+        <h3>Что мы реализуем:</h3>
+        <ul>
+            <li>🔢 Базовые операции: <code>+</code> <code>−</code> <code>×</code> <code>÷</code></li>
+            <li>🌓 Переключение светлой / тёмной темы с сохранением</li>
+            <li>📜 История вычислений с прокруткой и анимацией</li>
+            <li>👆 Жесты для скрытия истории</li>
+            <li>💾 Экспорт истории в текстовый файл</li>
+            <li>🔬 Научные функции: <code>sin</code> <code>cos</code> <code>tan</code> <code>log</code> <code>ln</code> <code>√</code> <code>x²</code> <code>x³</code> <code>1/x</code> <code>π</code></li>
+            <li>🧠 Память: <code>M+</code> <code>MR</code> <code>MC</code></li>
+            <li>✨ Анимация нажатия кнопок (отскок)</li>
+            <li>⌫ Кнопка <strong>Backspace</strong></li>
+        </ul>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 2. ПОДГОТОВКА -->
+        <!-- ============================================================ -->
+        <h2 id="sec-2">2. Подготовка и настройка проекта</h2>
+
+        <h3>Шаг 1: Создание проекта</h3>
+        <ol>
+            <li>Откройте <strong>Android Studio</strong> (рекомендуется версия Hedgehog или новее)</li>
+            <li>Нажмите <strong>New Project</strong></li>
+            <li>Выберите шаблон <strong>Empty Activity</strong></li>
+            <li>Название проекта: <code>CalculatorApp</code></li>
+            <li>Пакет: <code>com.example.calculatoruipractice</code></li>
+            <li>Язык: <strong>Kotlin</strong></li>
+            <li>Минимальный SDK: <strong>API 24 (Android 7.0)</strong> или выше</li>
+            <li>Нажмите <strong>Finish</strong></li>
+        </ol>
+
+        <div class="info-block warning">
+            <strong>⚠️ Важно!</strong> Убедитесь, что в <code>build.gradle.kts (app)</code> подключены все необходимые зависимости Compose. При создании проекта через <em>Empty Activity</em> они добавляются автоматически.
+        </div>
+
+        <h3>Шаг 2: Зависимости</h3>
+        <p>Добавьте в <code>build.gradle.kts (app)</code>:</p>
+
+        <pre><span class="comment">// build.gradle.kts (app)</span>
+dependencies {
+    <span class="comment">// Compose BOM (Bill of Materials)</span>
+    implementation(platform(<span class="string">"androidx.compose:compose-bom:2024.10.00"</span>))
+    implementation(<span class="string">"androidx.compose.ui:ui"</span>)
+    implementation(<span class="string">"androidx.compose.material3:material3"</span>)
+    implementation(<span class="string">"androidx.activity:activity-compose:1.9.0"</span>)
+
+    <span class="comment">// ViewModel</span>
+    implementation(<span class="string">"androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0"</span>)
+
+    <span class="comment">// DataStore (сохранение темы)</span>
+    implementation(<span class="string">"androidx.datastore:datastore-preferences:1.1.0"</span>)
+}</pre>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 3. СТРУКТУРА -->
+        <!-- ============================================================ -->
+        <h2 id="sec-3">3. Структура проекта</h2>
+
+        <p>Для чистоты и масштабируемости организуем код по следующей схеме:</p>
+
+        <div class="project-tree">
+            <span class="folder">📁 app/src/main/java/com/example/calculatoruipractice/</span>
+            <br>
+            ├── <span class="file">MainActivity.kt</span> &nbsp; <span style="color:#6b7280;font-size:13px;">← входная точка</span>
+            <br>
+            ├── <span class="folder">📁 ui/</span>
+            <br>
+            │&nbsp;&nbsp; ├── <span class="folder">📁 screens/</span>
+            <br>
+            │&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="folder">📁 calculator/</span>
+            <br>
+            │&nbsp;&nbsp; │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├── <span class="file">CalculatorScreen.kt</span> &nbsp; <span style="color:#6b7280;font-size:13px;">← UI</span>
+            <br>
+            │&nbsp;&nbsp; │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── <span class="file">CalculatorViewModel.kt</span> &nbsp; <span style="color:#6b7280;font-size:13px;">← логика</span>
+            <br>
+            │&nbsp;&nbsp; ├── <span class="folder">📁 theme/</span>
+            <br>
+            │&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file">Theme.kt</span>
+            <br>
+            │&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file">Color.kt</span>
+            <br>
+            │&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="file">Type.kt</span>
+            <br>
+            │&nbsp;&nbsp; └── <span class="folder">📁 components/</span>
+            <br>
+            │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └── <span class="file">AnimatedButton.kt</span> &nbsp; <span style="color:#6b7280;font-size:13px;">← анимированные кнопки</span>
+            <br>
+            └── <span class="folder">📁 data/</span>
+            <br>
+            &nbsp;&nbsp;&nbsp;&nbsp; └── <span class="file">PreferencesManager.kt</span> &nbsp; <span style="color:#6b7280;font-size:13px;">← DataStore</span>
+        </div>
+
+        <div class="info-block">
+            <strong>💡 Принципы:</strong>
+            <ul>
+                <li><strong>Single Responsibility</strong> – каждый файл отвечает за одну задачу</li>
+                <li><strong>Unidirectional Data Flow</strong> – данные движутся в одном направлении</li>
+                <li><strong>State Hoisting</strong> – состояние поднимается наверх, к ViewModel</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 4. ТЕМА -->
+        <!-- ============================================================ -->
+        <h2 id="sec-4">4. Тема с переключением светлой / тёмной</h2>
+
+        <h3>Color.kt</h3>
+        <pre><span class="keyword">package</span> com.example.calculatoruipractice.ui.theme
+
+<span class="keyword">import</span> androidx.compose.ui.graphics.Color
+
+<span class="comment">// Цвета для светлой темы</span>
+<span class="keyword">val</span> LightColors = <span class="keyword">object</span> {
+    <span class="keyword">val</span> Background = Color(0xFFF5F5F5)
+    <span class="keyword">val</span> Surface = Color(0xFFFFFFFF)
+    <span class="keyword">val</span> Primary = Color(0xFFFF9500)
+    <span class="keyword">val</span> Secondary = Color(0xFFE0E0E0)
+    <span class="keyword">val</span> TextPrimary = Color(0xFF1C1C1E)
+    <span class="keyword">val</span> TextSecondary = Color(0xFF666666)
+    <span class="keyword">val</span> ButtonNumber = Color(0xFFF0F0F0)
+    <span class="keyword">val</span> ButtonOperator = Color(0xFFFFE0B2)
+    <span class="keyword">val</span> Divider = Color(0xFFE0E0E0)
+    <span class="keyword">val</span> Error = Color(0xFFFF3B30)
+}
+
+<span class="comment">// Цвета для тёмной темы</span>
+<span class="keyword">val</span> DarkColors = <span class="keyword">object</span> {
+    <span class="keyword">val</span> Background = Color(0xFF1C1C1E)
+    <span class="keyword">val</span> Surface = Color(0xFF2C2C2E)
+    <span class="keyword">val</span> Primary = Color(0xFFFF9500)
+    <span class="keyword">val</span> Secondary = Color(0xFF3A3A3C)
+    <span class="keyword">val</span> TextPrimary = Color(0xFFFFFFFF)
+    <span class="keyword">val</span> TextSecondary = Color(0xFF888888)
+    <span class="keyword">val</span> ButtonNumber = Color(0xFF333335)
+    <span class="keyword">val</span> ButtonOperator = Color(0xFF2C2C2E)
+    <span class="keyword">val</span> Divider = Color(0xFF3A3A3C)
+    <span class="keyword">val</span> Error = Color(0xFFFF3B30)
+}</pre>
+
+        <h3>Theme.kt</h3>
+        <pre><span class="keyword">package</span> com.example.calculatoruipractice.ui.theme
+
+<span class="keyword">import</span> androidx.compose.material3.*
+<span class="keyword">import</span> androidx.compose.runtime.*
+
+<span class="keyword">data class</span> CalculatorColors(
+    <span class="keyword">val</span> background: Color,
+    <span class="keyword">val</span> surface: Color,
+    <span class="keyword">val</span> primary: Color,
+    <span class="keyword">val</span> secondary: Color,
+    <span class="keyword">val</span> textPrimary: Color,
+    <span class="keyword">val</span> textSecondary: Color,
+    <span class="keyword">val</span> buttonNumber: Color,
+    <span class="keyword">val</span> buttonOperator: Color,
+    <span class="keyword">val</span> divider: Color,
+    <span class="keyword">val</span> error: Color
+)
+
+<span class="keyword">val</span> LightCalculatorColors = CalculatorColors(
+    background = LightColors.Background,
+    surface = LightColors.Surface,
+    primary = LightColors.Primary,
+    secondary = LightColors.Secondary,
+    textPrimary = LightColors.TextPrimary,
+    textSecondary = LightColors.TextSecondary,
+    buttonNumber = LightColors.ButtonNumber,
+    buttonOperator = LightColors.ButtonOperator,
+    divider = LightColors.Divider,
+    error = LightColors.Error
+)
+
+<span class="keyword">val</span> DarkCalculatorColors = CalculatorColors(
+    background = DarkColors.Background,
+    surface = DarkColors.Surface,
+    primary = DarkColors.Primary,
+    secondary = DarkColors.Secondary,
+    textPrimary = DarkColors.TextPrimary,
+    textSecondary = DarkColors.TextSecondary,
+    buttonNumber = DarkColors.ButtonNumber,
+    buttonOperator = DarkColors.ButtonOperator,
+    divider = DarkColors.Divider,
+    error = DarkColors.Error
+)
+
+<span class="keyword">val</span> LocalCalculatorColors = staticCompositionLocalOf { LightCalculatorColors }
+
+<span class="keyword">object</span> CalculatorTheme {
+    <span class="keyword">val</span> colors: CalculatorColors
+        <span class="keyword">@Composable</span>
+        <span class="keyword">get</span>() = LocalCalculatorColors.current
+}
+
+<span class="keyword">@Composable</span>
+<span class="keyword">fun</span> CalculatorTheme(
+    darkTheme: Boolean,
+    content: <span class="keyword">@Composable</span> () -> Unit
+) {
+    <span class="keyword">val</span> colors = <span class="keyword">if</span> (darkTheme) DarkCalculatorColors else LightCalculatorColors
+
+    CompositionLocalProvider(LocalCalculatorColors provides colors) {
+        MaterialTheme(
+            colorScheme = <span class="keyword">if</span> (darkTheme) darkColorScheme() else lightColorScheme(),
+            typography = CalculatorTypography,
+            content = content
+        )
+    }
+}</pre>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 5. DATASTORE -->
+        <!-- ============================================================ -->
+        <h2 id="sec-5">5. DataStore – сохранение настроек</h2>
+
+        <pre><span class="keyword">package</span> com.example.calculatoruipractice.data
+
+<span class="keyword">import</span> android.content.Context
+<span class="keyword">import</span> androidx.datastore.core.DataStore
+<span class="keyword">import</span> androidx.datastore.preferences.core.*
+<span class="keyword">import</span> androidx.datastore.preferences.preferencesDataStore
+<span class="keyword">import</span> kotlinx.coroutines.flow.Flow
+<span class="keyword">import</span> kotlinx.coroutines.flow.map
+
+<span class="keyword">private val</span> Context.dataStore: DataStore<Preferences> by preferencesDataStore(<span class="string">"settings"</span>)
+
+<span class="keyword">class</span> PreferencesManager(<span class="keyword">private val</span> context: Context) {
+
+    <span class="keyword">companion object</span> {
+        <span class="keyword">private val</span> THEME_KEY = booleanPreferencesKey(<span class="string">"dark_theme"</span>)
+    }
+
+    <span class="comment">// Поток для наблюдения за темой</span>
+    <span class="keyword">val</span> themeFlow: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[THEME_KEY] ?: <span class="keyword">false</span>
+        }
+
+    <span class="comment">// Сохранение темы</span>
+    <span class="keyword">suspend fun</span> saveTheme(isDark: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[THEME_KEY] = isDark
+        }
+    }
+}</pre>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 6. VIEWMODEL -->
+        <!-- ============================================================ -->
+        <h2 id="sec-6">6. ViewModel – логика калькулятора</h2>
+
+        <div class="info-block">
+            <strong>🧠 Что такое ViewModel?</strong><br>
+            ViewModel хранит данные и логику UI, переживает повороты экрана и не зависит от жизненного цикла Activity.
+        </div>
+
+        <pre><span class="keyword">package</span> com.example.calculatoruipractice.ui.screens.calculator
+
+<span class="keyword">import</span> android.content.Context
+<span class="keyword">import</span> android.widget.Toast
+<span class="keyword">import</span> androidx.compose.runtime.mutableStateListOf
+<span class="keyword">import</span> androidx.lifecycle.ViewModel
+<span class="keyword">import</span> kotlinx.coroutines.flow.MutableStateFlow
+<span class="keyword">import</span> kotlinx.coroutines.flow.StateFlow
+<span class="keyword">import</span> kotlinx.coroutines.flow.asStateFlow
+<span class="keyword">import</span> kotlinx.coroutines.flow.update
+<span class="keyword">import</span> kotlin.math.*
+
+<span class="keyword">data class</span> CalculatorState(
+    <span class="keyword">val</span> input: String = <span class="string">""</span>,
+    <span class="keyword">val</span> result: String = <span class="string">""</span>,
+    <span class="keyword">val</span> firstNumber: Double = 0.0,
+    <span class="keyword">val</span> operation: String = <span class="string">""</span>,
+    <span class="keyword">val</span> isNewNumber: Boolean = <span class="keyword">true</span>,
+    <span class="keyword">val</span> history: List<String> = emptyList(),
+    <span class="keyword">val</span> showHistory: Boolean = <span class="keyword">false</span>,
+    <span class="keyword">val</span> isScientific: Boolean = <span class="keyword">false</span>,
+    <span class="keyword">val</span> memory: Double = 0.0
+)
+
+<span class="keyword">class</span> CalculatorViewModel : ViewModel() {
+
+    <span class="keyword">private val</span> _state = MutableStateFlow(CalculatorState())
+    <span class="keyword">val</span> state: StateFlow<CalculatorState> = _state.asStateFlow()
+
+    <span class="keyword">private val</span> _historyList = mutableStateListOf<String>()
+    <span class="keyword">val</span> historyList: List<String> = _historyList
+
+    <span class="comment">// ... все методы, описанные выше ...</span>
+}</pre>
+
+        <div class="info-block success">
+            <strong>✅ Ключевые методы ViewModel:</strong>
+            <ul>
+                <li><code>onDigitClick()</code> – ввод цифр</li>
+                <li><code>onOperatorClick()</code> – выбор операции</li>
+                <li><code>onEqualsClick()</code> – вычисление результата</li>
+                <li><code>onScientificFunction()</code> – научные функции</li>
+                <li><code>memoryStore() / memoryRecall() / memoryClear()</code> – память</li>
+                <li><code>exportHistory()</code> – экспорт в файл</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 7. UI -->
+        <!-- ============================================================ -->
+        <h2 id="sec-7">7. UI – экран калькулятора</h2>
+
+        <div class="info-block">
+            <strong>📱 Компоновка экрана:</strong>
+            <ul>
+                <li>Заголовок с кнопками управления (история, научный режим)</li>
+                <li>Анимированная панель истории</li>
+                <li>Поле ввода и поле результата</li>
+                <li>Научные кнопки (появляются при переключении)</li>
+                <li>Сетка цифр и операций 4×4</li>
+                <li>Нижняя панель: CLEAR, Backspace, Экспорт</li>
+                <li>Плавающая кнопка переключения темы</li>
+            </ul>
+        </div>
+
+        <pre><span class="keyword">@Composable</span>
+<span class="keyword">fun</span> CalculatorScreen(
+    viewModel: CalculatorViewModel = viewModel()
+) {
+    <span class="keyword">val</span> state by viewModel.state.collectAsState()
+    <span class="keyword">val</span> colors = CalculatorTheme.colors
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.background)
+            .padding(16.dp)
+    ) {
+        <span class="comment">// Заголовок</span>
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(<span class="string">"🧮 КАЛЬКУЛЯТОР"</span>, color = colors.textPrimary, fontSize = 28.sp)
+            Row {
+                IconButton(onClick = { viewModel.toggleScientificMode() }) {
+                    Text(<span class="keyword">if</span> (state.isScientific) <span class="string">"🔬"</span> else <span class="string">"🔭"</span>)
+                }
+                IconButton(onClick = { viewModel.toggleHistory() }) {
+                    Icon(<span class="keyword">if</span> (state.showHistory) Icons.Default.Close else Icons.Default.History)
+                }
+            }
+        }
+
+        <span class="comment">// История с анимацией</span>
+        AnimatedVisibility(visible = state.showHistory) { HistoryPanel(...) }
+
+        <span class="comment">// Поля ввода</span>
+        TextField(value = state.input, ...)
+        Text(text = state.result, ...)
+
+        <span class="comment">// Научные кнопки</span>
+        AnimatedVisibility(visible = state.isScientific) { ScientificButtons() }
+
+        <span class="comment">// Основные кнопки</span>
+        NumberButtons()
+        BottomPanel()
+    }
+}</pre>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 8. АНИМАЦИЯ КНОПОК -->
+        <!-- ============================================================ -->
+        <h2 id="sec-8">8. Анимированные кнопки</h2>
+
+        <p>При нажатии кнопка уменьшается до 85 % и возвращается с пружинистым эффектом.</p>
+
+        <pre><span class="keyword">@Composable</span>
+<span class="keyword">fun</span> AnimatedCalculatorButton(
+    text: String,
+    onClick: () -> Unit,
+    backgroundColor: Color,
+    textColor: Color,
+    modifier: Modifier = Modifier
+) {
+    <span class="keyword">var</span> isPressed by remember { mutableStateOf(<span class="keyword">false</span>) }
+
+    <span class="keyword">val</span> scale by animateFloatAsState(
+        targetValue = <span class="keyword">if</span> (isPressed) 0.85f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = <span class="string">"scale"</span>
+    )
+
+    Box(
+        modifier = modifier
+            .scale(scale)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = <span class="keyword">null</span>
+            ) {
+                isPressed = <span class="keyword">true</span>
+                onClick()
+                <span class="keyword">delay</span>(100) { isPressed = <span class="keyword">false</span> }
+            }
+    ) {
+        Button(
+            onClick = { },
+            modifier = Modifier.fillMaxSize(),
+            colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text(text = text, color = textColor, fontSize = 26.sp)
+        }
+    }
+}</pre>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 9. ИСТОРИЯ -->
+        <!-- ============================================================ -->
+        <h2 id="sec-9">9. История с прокруткой и анимацией</h2>
+
+        <h3>Анимация появления:</h3>
+        <ul>
+            <li>Пружинная анимация (<code>spring</code>) с отскоком</li>
+            <li>Появление сверху вниз</li>
+            <li>Плавное затухание при закрытии</li>
+        </ul>
+
+        <pre>AnimatedVisibility(
+    visible = state.showHistory,
+    enter = slideInVertically(
+        initialOffsetY = { -it },
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    ) + fadeIn(),
+    exit = slideOutVertically(
+        targetOffsetY = { -it },
+        animationSpec = tween(300)
+    ) + fadeOut()
+) {
+    HistoryPanel(...)
+}</pre>
+
+        <h3>Прокрутка истории:</h3>
+        <pre>LazyColumn {
+    items(history) { entry ->
+        Text(text = entry, ...)
+        HorizontalDivider(...)
+    }
+}</pre>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 10. ЖЕСТЫ -->
+        <!-- ============================================================ -->
+        <h2 id="sec-10">10. Жесты для скрытия истории</h2>
+
+        <p>Свайп вверх по панели истории скрывает её.</p>
+
+        <pre>Box(
+    modifier = Modifier
+        .height(200.dp)
+        .pointerInput(Unit) {
+            detectDragGestures(
+                onDragEnd = {
+                    <span class="keyword">if</span> (dragOffset < -100f) {
+                        viewModel.toggleHistory()
+                    }
+                    dragOffset = 0f
+                }
+            ) { change, dragAmount ->
+                change.consume()
+                dragOffset += dragAmount.y
+            }
+        }
+) {
+    <span class="comment">// Смещение при свайпе</span>
+    Box(modifier = Modifier.offset { Offset(0f, dragOffset) }) {
+        HistoryPanel(...)
+    }
+}</pre>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 11. ЭКСПОРТ -->
+        <!-- ============================================================ -->
+        <h2 id="sec-11">11. Экспорт истории в файл</h2>
+
+        <pre><span class="keyword">fun</span> exportHistory(context: Context) {
+    <span class="keyword">val</span> timestamp = System.currentTimeMillis()
+    <span class="keyword">val</span> fileName = <span class="string">"calculator_history_$timestamp.txt"</span>
+    <span class="keyword">val</span> file = File(context.filesDir, fileName)
+
+    file.bufferedWriter().use { writer ->
+        writer.write(<span class="string">"=== ИСТОРИЯ ВЫЧИСЛЕНИЙ ===\n"</span>)
+        writer.write(<span class="string">"Дата: ${SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(Date())}\n\n"</span>)
+        _historyList.reversed().forEachIndexed { index, entry ->
+            writer.write(<span class="string">"${index + 1}. $entry\n"</span>)
+        }
+    }
+
+    Toast.makeText(context, <span class="string">"Сохранено: ${file.absolutePath}"</span>, Toast.LENGTH_LONG).show()
+}</pre>
+
+        <div class="info-block success">
+            <strong>📁 Где найти файл?</strong><br>
+            Файл сохраняется во внутреннем хранилище приложения. Посмотреть можно через <em>Device File Explorer</em> в Android Studio: <code>/data/data/com.example.calculatoruipractice/files/</code>
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 12. НАУЧНЫЕ ФУНКЦИИ -->
+        <!-- ============================================================ -->
+        <h2 id="sec-12">12. Научные функции</h2>
+
+        <table>
+            <thead>
+                <tr><th>Функция</th><th>Описание</th><th>Пример</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>sin</code></td><td>Синус (градусы)</td><td>sin(30) = 0.5</td></tr>
+                <tr><td><code>cos</code></td><td>Косинус (градусы)</td><td>cos(60) = 0.5</td></tr>
+                <tr><td><code>tan</code></td><td>Тангенс (градусы)</td><td>tan(45) = 1.0</td></tr>
+                <tr><td><code>log</code></td><td>Десятичный логарифм</td><td>log(100) = 2</td></tr>
+                <tr><td><code>ln</code></td><td>Натуральный логарифм</td><td>ln(e) = 1</td></tr>
+                <tr><td><code>√</code></td><td>Квадратный корень</td><td>√(16) = 4</td></tr>
+                <tr><td><code>x²</code></td><td>Квадрат числа</td><td>5² = 25</td></tr>
+                <tr><td><code>x³</code></td><td>Куб числа</td><td>3³ = 27</td></tr>
+                <tr><td><code>1/x</code></td><td>Обратное число</td><td>1/4 = 0.25</td></tr>
+                <tr><td><code>π</code></td><td>Число Пи</td><td>π ≈ 3.14159</td></tr>
+            </tbody>
+        </table>
+
+        <pre><span class="keyword">fun</span> onScientificFunction(function: String) {
+    <span class="keyword">val</span> value = state.value.input.toDouble()
+    <span class="keyword">val</span> result = <span class="keyword">when</span> (function) {
+        <span class="string">"sin"</span> -> sin(Math.toRadians(value))
+        <span class="string">"cos"</span> -> cos(Math.toRadians(value))
+        <span class="string">"tan"</span> -> tan(Math.toRadians(value))
+        <span class="string">"log"</span> -> log10(value)
+        <span class="string">"ln"</span> -> ln(value)
+        <span class="string">"√"</span> -> sqrt(value)
+        <span class="string">"x²"</span> -> value * value
+        <span class="string">"x³"</span> -> value * value * value
+        <span class="string">"1/x"</span> -> <span class="keyword">if</span> (value != 0.0) 1.0 / value else Double.NaN
+        <span class="string">"π"</span> -> PI
+        <span class="keyword">else</span> -> value
+    }
+    <span class="comment">// Обновляем состояние и историю</span>
+}</pre>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 13. ПАМЯТЬ -->
+        <!-- ============================================================ -->
+        <h2 id="sec-13">13. Память (M+, MR, MC)</h2>
+
+        <table>
+            <thead>
+                <tr><th>Кнопка</th><th>Действие</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>M+</code></td><td>Сохранить текущее число в память</td></tr>
+                <tr><td><code>MR</code></td><td>Вставить число из памяти в поле ввода</td></tr>
+                <tr><td><code>MC</code></td><td>Очистить память</td></tr>
+            </tbody>
+        </table>
+
+        <div class="info-block">
+            <strong>🧠 Индикатор памяти</strong><br>
+            Справа от кнопок памяти отображается текущее значение или <em>«M: пусто»</em>.
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 14. ЗАПУСК -->
+        <!-- ============================================================ -->
+        <h2 id="sec-14">14. Запуск и тестирование</h2>
+
+        <h3>Шаг 1: Синхронизация</h3>
+        <p>Нажмите <strong>Sync Project with Gradle Files</strong> (🐘)</p>
+
+        <h3>Шаг 2: Сборка</h3>
+        <p><strong>Build → Clean Project</strong>, затем <strong>Build → Rebuild Project</strong></p>
+
+        <h3>Шаг 3: Запуск</h3>
+        <p>Нажмите ▶️ <strong>Run</strong> и выберите эмулятор или реальное устройство.</p>
+
+        <div class="info-block success">
+            <strong>🎉 Поздравляю!</strong> Ваше приложение готово. Теперь вы можете пользоваться калькулятором с полным набором функций.
+        </div>
+
+        <hr style="margin: 30px 0; border: none; border-top: 2px solid #f0f2f5;">
+
+        <!-- ============================================================ -->
+        <!-- 15. ЗАКЛЮЧЕНИЕ -->
+        <!-- ============================================================ -->
+        <h2 id="sec-15">15. Заключение и дальнейшие улучшения</h2>
+
+        <h3>Что мы сделали:</h3>
+        <ul>
+            <li>✅ Создали калькулятор на Jetpack Compose</li>
+            <li>✅ Реализовали базовые и научные операции</li>
+            <li>✅ Добавили историю с прокруткой и анимацией</li>
+            <li>✅ Настроили переключение светлой / тёмной темы с сохранением</li>
+            <li>✅ Добавили жесты для скрытия истории</li>
+            <li>✅ Реализовали экспорт истории в файл</li>
+            <li>✅ Добавили память (M+, MR, MC)</li>
+            <li>✅ Вынесли логику в ViewModel</li>
+            <li>✅ Добавили анимацию нажатия кнопок</li>
+        </ul>
+
+        <h3>💡 Что можно добавить дальше:</h3>
+        <table>
+            <thead>
+                <tr><th>Функция</th><th>Сложность</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Голосовой ввод</td><td>⭐⭐⭐</td></tr>
+                <tr><td>Поддержка планшетов (адаптивный дизайн)</td><td>⭐⭐</td></tr>
+                <tr><td>Экспорт в PDF / CSV</td><td>⭐⭐</td></tr>
+                <tr><td>Умные скобки (приоритет операций)</td><td>⭐⭐⭐</td></tr>
+                <tr><td>Виджет на главный экран</td><td>⭐⭐⭐⭐</td></tr>
+                <tr><td>Поддержка Wear OS</td><td>⭐⭐⭐⭐</td></tr>
+            </tbody>
+        </table>
+
+        <div class="info-block success" style="margin-top: 24px;">
+            <strong>📚 Полезные ссылки:</strong><br>
+            • <a href="https://developer.android.com/jetpack/compose" target="_blank">Официальная документация Jetpack Compose</a><br>
+            • <a href="https://developer.android.com/codelabs/jetpack-compose-basics" target="_blank">Codelab: Основы Compose</a><br>
+            • <a href="https://developer.android.com/topic/libraries/architecture/viewmodel" target="_blank">ViewModel – руководство</a><br>
+            • <a href="https://developer.android.com/topic/libraries/architecture/datastore" target="_blank">DataStore – хранение данных</a>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #f0f2f5; color: #6b7280; font-size: 14px;">
+            🧮 Руководство создано в рамках обучения Android-разработке<br>
+            Сделано с ❤️ для всех, кто хочет освоить Jetpack Compose
+        </div>
+
+    </div>
+
+    <!-- Кнопка "Наверх" -->
+    <button class="back-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">⬆</button>
+
+    <!-- Скрипт для копирования кода -->
+    <script>
+        document.querySelectorAll('pre').forEach(block => {
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.textContent = '📋 Копировать';
+            button.onclick = function() {
+                const code = block.innerText;
+                navigator.clipboard.writeText(code).then(() => {
+                    button.textContent = '✅ Скопировано!';
+                    setTimeout(() => button.textContent = '📋 Копировать', 2000);
+                });
+            };
+            block.appendChild(button);
+        });
+    </script>
+
+</body>
+</html>
