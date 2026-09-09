@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CalculatorUIPractice — руководство пользователя</title>
+<style>
+:root{
+  --orange:#FF9500; --bg:#F5F5F5; --surface:#FFFFFF; --text:#1C1C1E; --muted:#666;
+  --key:#F0F0F0; --key-op:#FFE0B2; --dark:#2C2C2E; --error:#FF3B30; --border:#e6e6e6;
+}
+body.dark{
+  --bg:#1C1C1E; --surface:#2C2C2E; --text:#FFFFFF; --muted:#9a9a9a;
+  --key:#333335; --key-op:#3a3226; --border:#3A3A3C;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;transition:background .25s,color .25s}
+header.hero{background:var(--orange);color:#fff;padding:26px 20px;text-align:center;position:relative}
+header.hero h1{margin:0 0 6px;font-size:26px}
+header.hero p{margin:0;opacity:.95}
+#pageTheme{position:absolute;top:14px;right:14px;border:none;border-radius:10px;padding:8px 12px;background:rgba(255,255,255,.22);color:#fff;font-size:16px;cursor:pointer}
+nav.toc{max-width:960px;margin:14px auto;padding:0 16px;font-size:14px}
+nav.toc a{color:var(--orange);text-decoration:none;margin:0 10px 4px 0;display:inline-block}
+nav.toc a:hover{text-decoration:underline}
+main{max-width:960px;margin:0 auto;padding:0 16px 40px}
+section.card{background:var(--surface);border-radius:16px;padding:20px 22px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+h2{margin:0 0 12px;font-size:20px}
+h2 .num{color:var(--orange)}
+h3{font-size:16px;margin:16px 0 8px}
+p{margin:8px 0}
+pre.layout{background:var(--key);border-radius:12px;padding:12px 14px;overflow-x:auto;font-size:12.5px;line-height:1.45}
+kbd.key{display:inline-block;min-width:32px;padding:4px 9px;margin:1px 2px;border-radius:9px;background:var(--key);border:1px solid var(--border);border-bottom-width:3px;font-family:inherit;font-size:14px;font-weight:600;text-align:center;color:var(--text)}
+kbd.key.op{background:var(--key-op);color:var(--orange)}
+kbd.key.fn{background:var(--key);color:var(--text)}
+kbd.key.inv{background:var(--dark);color:#fff}
+kbd.key.eq{background:var(--orange);color:#fff}
+kbd.key.clear{background:var(--error);color:#fff}
+kbd.key.mem{background:var(--key-op);color:var(--orange)}
+.arrow{color:var(--muted);margin:0 4px}
+ol.steps li,ul.steps li{margin:6px 0}
+.history{background:var(--dark);color:#eee;border-radius:10px;padding:10px 14px;font-family:ui-monospace,Consolas,monospace;font-size:13px;overflow-x:auto;margin:8px 0}
+.history .h{color:var(--orange);font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:var(--key-op);color:var(--orange)}
+tr:last-child td{border-bottom:none}
+.note{background:color-mix(in srgb,var(--orange) 12%,var(--surface));border-left:4px solid var(--orange);border-radius:6px;padding:10px 14px;margin:10px 0;font-size:14px}
+.warn{background:color-mix(in srgb,var(--error) 10%,var(--surface));border-left:4px solid var(--error);border-radius:6px;padding:10px 14px;margin:10px 0;font-size:14px}
+.formulas{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:10px 0}
+.formula{background:var(--key-op);border-radius:12px;padding:12px;text-align:center;font-size:15px;color:var(--text)}
+.formula b{display:block;font-size:18px;color:var(--orange)}
+.checker{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+.checker input,.checker select{padding:8px 10px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px}
+.checker button{padding:8px 16px;border:none;border-radius:9px;background:var(--orange);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+.checker button:hover{filter:brightness(1.08)}
+#checkResult{margin-top:8px;font-size:16px;font-weight:600}
+#checkSeq{color:var(--muted);font-size:14px}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:18px}
+@media print{body{background:#fff;color:#000}section.card{box-shadow:none;border:1px solid #ddd}#pageTheme,nav.toc{display:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <button id="pageTheme" onclick="document.body.classList.toggle('dark');this.textContent=document.body.classList.contains('dark')?'☀️':'🌙'">🌙</button>
+  <h1>🧮 CalculatorUIPractice</h1>
+  <p>Подробное руководство пользователя • редакция от 09.09.2026</p>
+</header>
+
+<nav class="toc">
+  <a href="#s1">1. О приложении</a><a href="#s2">2. Интерфейс</a><a href="#s3">3. Базовые операции</a>
+  <a href="#s4">4. Тема</a><a href="#s5">5. Научный режим</a><a href="#s6">6. Память</a>
+  <a href="#s7">7. История и экспорт</a><a href="#s8">8. ctg, sec, csc</a><a href="#s9">9. Ошибки</a>
+  <a href="#s10">10. Примеры</a><a href="#s11">11. Тренажёр</a><a href="#s12">12. FAQ</a><a href="#s13">13. Шпаргалка</a>
+</nav>
+
+<main>
+
+<section id="s1" class="card">
+  <h2><span class="num">1.</span> О приложении</h2>
+  <p><b>CalculatorUIPractice</b> — калькулятор для Android с базовым и научным режимами, блоком памяти, историей вычислений с экспортом в файл и переключаемой светлой/тёмной темой.</p>
+  <table>
+    <tr><th>Характеристика</th><th>Значение</th></tr>
+    <tr><td>Минимальная версия ОС</td><td>Android 7.0 (minSdk 24) и выше</td></tr>
+    <tr><td>Сохраняется между запусками</td><td>только выбранная тема оформления</td></tr>
+    <tr><td>Живёт только в сеансе</td><td>история вычислений, память M, текущий ввод</td></tr>
+    <tr><td>Точность вывода</td><td>округление до 9 знаков после запятой</td></tr>
+  </table>
+  <div class="warn">⚠️ История и память не переживают полное закрытие приложения. Важные результаты сохраняйте через экспорт (раздел 7).</div>
+</section>
+
+<section id="s2" class="card">
+  <h2><span class="num">2.</span> Запуск и интерфейс</h2>
+  <p>Запустите приложение ярлыком с рабочего стола. Кнопки при нажатии анимируются (пружинное сжатие) — это подтверждение срабатывания.</p>
+<pre class="layout">
+🧮 КАЛЬКУЛЯТОР                    [🌙] [🔭] [🕐]   ← шапка
+┌──────────────────────────────────────────────┐
+│ [ 📜 История — панель 150 dp, если открыта ] │
+├──────────────────────────────────────────────┤
+│                                      12 × 4  │ ← поле ввода (текущее число)
+│                                         = 48 │ ← строка результата (оранжевая)
+├──────────────────────────────────────────────┤
+│ [DEG][sin⁻¹][cos⁻¹][tan⁻¹][π][e]             │
+│ [sin][cos][tan][log][ln]                     │ научная панель
+│ [x²][x³][xʸ][√][∛]                           │ (прокручивается,
+│ [x!][1/x][%][±][10ˣ]                         │  если включена)
+│ [MC][MR][M+][MS][M]                          │
+├──────────────────────────────────────────────┤
+│ [7][8][9][÷]   [4][5][6][×]                  │
+│ [1][2][3][−]   [0][.][=][+]                  ← основные кнопки
+├──────────────────────────────────────────────┤
+│ [  CLEAR  ] [⌫] []                         ← нижняя панель
+└──────────────────────────────────────────────┘
+</pre>
+  <table>
+    <tr><th>Элемент</th><th>Назначение</th></tr>
+    <tr><td>🌙 / ☀️</td><td>переключение тёмной/светлой темы (сохраняется)</td></tr>
+    <tr><td>🔭 / 🔬</td><td>включить/выключить научный режим</td></tr>
+    <tr><td>🕐 / ✕</td><td>открыть/закрыть панель истории</td></tr>
+    <tr><td>Поле ввода</td><td>текущее число; редактируется только кнопками (поле только для чтения)</td></tr>
+    <tr><td>Оранжевая строка</td><td>промежуточное состояние («12 ×») или полная запись последнего результата («12 × 4 = 48»)</td></tr>
+    <tr><td>💾 внизу</td><td>появляется только при непустой истории — экспорт в файл</td></tr>
+  </table>
+</section>
+
+<section id="s3" class="card">
+  <h2><span class="num">3.</span> Базовые операции</h2>
+  <h3>3.1. Ввод чисел</h3>
+  <ul class="steps">
+    <li>Цифры <kbd class="key">0</kbd>…<kbd class="key">9</kbd> формируют число посимвольно.</li>
+    <li><kbd class="key">.</kbd> — десятичная точка: в начале числа даёт «0.», повторная точка в том же числе игнорируется.</li>
+    <li>Новое число начинается после оператора, «=», научной функции или константы.</li>
+  </ul>
+  <h3>3.2. Вычисление</h3>
+  <ol class="steps">
+    <li>Введите первое число → нажмите оператор <kbd class="key op">÷</kbd><kbd class="key op">×</kbd><kbd class="key op">−</kbd><kbd class="key op">+</kbd> (в строке результата появится «12 ×»).</li>
+    <li>Введите второе число → нажмите <kbd class="key eq">=</kbd>.</li>
+    <li>Результат встанет в поле ввода, полная запись — в оранжевую строку и в историю. Следующий оператор продолжит счёт от результата (цепочки).</li>
+  </ol>
+  <div class="warn">⚠️ Калькулятор держит одну отложенную операцию: повторное нажатие оператора заменяет его без вычисления («12 +» → «×» даст «12 ×»). Для промежуточного итога нажимайте «=».</div>
+  <h3>3.3. Сброс и исправления</h3>
+  <ul class="steps">
+    <li><kbd class="key clear">CLEAR</kbd> — полный сброс: ввод, строка результата, память M, закрытие панели истории. Не сбрасывает режим углов (DEG/RAD) и тему.</li>
+    <li><kbd class="key">⌫</kbd> — удалить последний символ введённого числа.</li>
+  </ul>
+</section>
+
+<section id="s4" class="card">
+  <h2><span class="num">4.</span> Тема оформления</h2>
+  <p>Кнопка <b>🌙</b> включает тёмную тему, <b>☀️</b> возвращает светлую. Выбор сохраняется автоматически и восстанавливается при следующем запуске приложения.</p>
+</section>
+
+<section id="s5" class="card">
+  <h2><span class="num">5.</span> Научный режим</h2>
+  <p>Включается кнопкой <b>🔭</b> (становится <b>🔬</b>): над основными кнопками появляется прокручиваемая панель. Каждая научная кнопка применяется к текущему числу в поле ввода, заменяет его результатом и добавляет запись в историю. Если число не введено, нажатие игнорируется (кроме <kbd class="key fn">π</kbd> и <kbd class="key fn">e</kbd> — они подставляют константу).</p>
+  <h3>5.1. Режим углов</h3>
+  <p>Кнопка <kbd class="key op">DEG</kbd>/<kbd class="key fn">RAD</kbd> переключает градусы/радианы. Влияет на sin, cos, tan (аргумент) и sin⁻¹, cos⁻¹, tan⁻¹ (результат); в истории единицы указываются: «sin(30°) = 0.5» или «sin(0.523598776 rad) = 0.5».</p>
+  <h3>5.2. Таблица функций</h3>
+  <table>
+    <tr><th>Кнопка</th><th>Действие</th><th>Примечание</th></tr>
+    <tr><td><kbd class="key fn">sin⁻¹</kbd><kbd class="key fn">cos⁻¹</kbd><kbd class="key fn">tan⁻¹</kbd></td><td>обратные тригонометрические</td><td>аргумент из [−1; 1]</td></tr>
+    <tr><td><kbd class="key fn">π</kbd> / <kbd class="key fn">e</kbd></td><td>подстановка констант 3.141592654 / 2.718281828</td><td>работают без ввода числа</td></tr>
+    <tr><td><kbd class="key fn">sin</kbd><kbd class="key fn">cos</kbd><kbd class="key fn">tan</kbd></td><td>тригонометрия</td><td>с учётом DEG/RAD</td></tr>
+    <tr><td><kbd class="key fn">log</kbd> / <kbd class="key fn">ln</kbd></td><td>десятичный / натуральный логарифм</td><td>только для чисел &gt; 0</td></tr>
+    <tr><td><kbd class="key fn">x²</kbd> / <kbd class="key fn">x³</kbd></td><td>квадрат / куб</td><td></td></tr>
+    <tr><td><kbd class="key fn">xʸ</kbd></td><td>степень как оператор: основание → xʸ → показатель → «=»</td><td>ждёт второе число</td></tr>
+    <tr><td><kbd class="key fn">√</kbd> / <kbd class="key fn">∛</kbd></td><td>квадратный / кубический корень</td><td>√ от отрицательного → «Ошибка»</td></tr>
+    <tr><td><kbd class="key fn">x!</kbd></td><td>факториал</td><td>целые 0…170; &gt;170 → ∞</td></tr>
+    <tr><td><kbd class="key inv">1/x</kbd></td><td>обратное значение</td><td>от 0 → «Ошибка»</td></tr>
+    <tr><td><kbd class="key fn">%</kbd></td><td>делит число на 100</td><td>50 → 0.5</td></tr>
+    <tr><td><kbd class="key fn">±</kbd></td><td>смена знака</td><td></td></tr>
+    <tr><td><kbd class="key fn">10ˣ</kbd></td><td>10 в степени числа</td><td></td></tr>
+  </table>
+</section>
+
+<section id="s6" class="card">
+  <h2><span class="num">6.</span> Память (M)</h2>
+  <table>
+    <tr><th>Кнопка</th><th>Действие</th></tr>
+    <tr><td><kbd class="key mem">MS</kbd></td><td>сохранить текущее число в память</td></tr>
+    <tr><td><kbd class="key mem">M+</kbd></td><td>прибавить текущее число к памяти</td></tr>
+    <tr><td><kbd class="key mem">MR</kbd></td><td>подставить значение памяти в поле ввода (только если память ≠ 0)</td></tr>
+    <tr><td><kbd class="key mem">MC</kbd></td><td>очистить память</td></tr>
+  </table>
+  <p>Индикатор справа показывает «M» (пусто) или подсвеченное оранжевым «M=20» (значение хранится; дроби отображаются с двумя знаками). Память сбрасывается кнопкой CLEAR и не сохраняется после закрытия приложения.</p>
+</section>
+
+<section id="s7" class="card">
+  <h2><span class="num">7.</span> История и экспорт</h2>
+  <ul class="steps">
+    <li>Открытие/закрытие — кнопка 🕐 / ✕ в шапке; панель выезжает с пружинной анимацией.</li>
+    <li>Записи идут сверху от новых к старым: «12 × 4 = 48», «sin(30°) = 0.5».</li>
+    <li>Закрыть панель можно также жестом: потянуть её вверх более чем на 100 px.</li>
+    <li>«Очистить» (красным) удаляет всю историю.</li>
+    <li>Экспорт 💾 — из шапки панели или кнопкой 💾 внизу экрана: создаётся файл <code>calculator_history_&lt;метка_времени&gt;.txt</code> во внутреннем хранилище приложения; всплывающее сообщение показывает полный путь. Внутри — шапка с датой, нумерованный список операций в хронологическом порядке и итог «Всего операций: N».</li>
+  </ul>
+  <div class="note">💡 Файл лежит в защищённом каталоге приложения и не виден файловым менеджером. Получить его можно через adb на отладочной сборке:<br><code>adb exec-out run-as com.example.calculatoruipractice cat files/calculator_history_&lt;метка&gt;.txt &gt; history.txt</code></div>
+</section>
+
+<section id="s8" class="card">
+  <h2><span class="num">8.</span> Котангенс, секанс, косеканс</h2>
+  <p>Отдельных кнопок ctg, sec, csc нет — они получаются за два нажатия через <kbd class="key inv">1/x</kbd>:</p>
+  <div class="formulas">
+    <div class="formula"><b>ctg α = 1 / tan α</b>(= cos α / sin α)</div>
+    <div class="formula"><b>sec α = 1 / cos α</b></div>
+    <div class="formula"><b>csc α = 1 / sin α</b></div>
+  </div>
+  <h3>8.1. Универсальный алгоритм</h3>
+  <ol class="steps">
+    <li>Включите научный режим 🔭 и проверьте режим углов (DEG/RAD).</li>
+    <li>Введите угол (для радиан: <kbd class="key fn">π</kbd><kbd class="key op">÷</kbd><kbd class="key">4</kbd><kbd class="key eq">=</kbd>).</li>
+    <li>Нажмите базовую функцию: <b>tan</b> для ctg, <b>cos</b> для sec, <b>sin</b> для csc.</li>
+    <li>Нажмите <kbd class="key inv">1/x</kbd> — готово; оба шага попадут в историю.</li>
+  </ol>
+  <h3>8.2. Разбор примеров</h3>
+  <p><b>ctg 45°:</b> <kbd class="key">4</kbd><kbd class="key">5</kbd><span class="arrow">→</span><kbd class="key fn">tan</kbd><span class="arrow">→</span><kbd class="key inv">1/x</kbd></p>
+  <div class="history"><span class="h">📜 История</span><br>tan(45°) = 1<br>1/x(1) = 1 &nbsp;← ctg 45°</div>
+  <p><b>sec 60°:</b> <kbd class="key">6</kbd><kbd class="key">0</kbd><span class="arrow">→</span><kbd class="key fn">cos</kbd><span class="arrow">→</span><kbd class="key inv">1/x</kbd></p>
+  <div class="history">cos(60°) = 0.5<br>1/x(0.5) = 2 &nbsp;← sec 60°</div>
+  <p><b>csc 30°:</b> <kbd class="key">3</kbd><kbd class="key">0</kbd><span class="arrow">→</span><kbd class="key fn">sin</kbd><span class="arrow">→</span><kbd class="key inv">1/x</kbd></p>
+  <div class="history">sin(30°) = 0.5<br>1/x(0.5) = 2 &nbsp;← csc 30°</div>
+  <p><b>ctg(π/4) в радианах:</b> <kbd class="key fn">RAD</kbd><span class="arrow">→</span><kbd class="key fn">π</kbd><kbd class="key op">÷</kbd><kbd class="key">4</kbd><kbd class="key eq">=</kbd><span class="arrow">→</span><kbd class="key fn">tan</kbd><span class="arrow">→</span><kbd class="key inv">1/x</kbd></p>
+  <div class="history">π = 3.141592654<br>3.141592654 ÷ 4 = 0.785398163<br>tan(0.785398163 rad) = 1<br>1/x(1) = 1 &nbsp;← ctg(π/4)</div>
+  <h3>8.3. Сводная таблица</h3>
+  <table>
+    <tr><th>Выражение</th><th>Режим</th><th>Нажатия</th><th>Результат</th></tr>
+    <tr><td>ctg 45°</td><td>DEG</td><td>4 5 → tan → 1/x</td><td>1</td></tr>
+    <tr><td>ctg 30°</td><td>DEG</td><td>3 0 → tan → 1/x</td><td>1.732050808</td></tr>
+    <tr><td>ctg 60°</td><td>DEG</td><td>6 0 → tan → 1/x</td><td>0.577350269</td></tr>
+    <tr><td>sec 0°</td><td>DEG</td><td>0 → cos → 1/x</td><td>1</td></tr>
+    <tr><td>sec 45°</td><td>DEG</td><td>4 5 → cos → 1/x</td><td>1.414213562</td></tr>
+    <tr><td>sec 60°</td><td>DEG</td><td>6 0 → cos → 1/x</td><td>2</td></tr>
+    <tr><td>csc 30°</td><td>DEG</td><td>3 0 → sin → 1/x</td><td>2</td></tr>
+    <tr><td>csc 45°</td><td>DEG</td><td>4 5 → sin → 1/x</td><td>1.414213562</td></tr>
+    <tr><td>csc 90°</td><td>DEG</td><td>9 0 → sin → 1/x</td><td>1</td></tr>
+    <tr><td>ctg(π/4)</td><td>RAD</td><td>π ÷ 4 = → tan → 1/x</td><td>1</td></tr>
+    <tr><td>sec(π/3)</td><td>RAD</td><td>π ÷ 3 = → cos → 1/x</td><td>2</td></tr>
+    <tr><td>csc(π/6)</td><td>RAD</td><td>π ÷ 6 = → sin → 1/x</td><td>2</td></tr>
+  </table>
+  <h3>8.4. Альтернатива для ctg — через память (cos ÷ sin)</h3>
+  <ol class="steps">
+    <li>Угол → <kbd class="key fn">sin</kbd> → <kbd class="key mem">MS</kbd>.</li>
+    <li>Тот же угол → <kbd class="key fn">cos</kbd>.</li>
+    <li><kbd class="key op">÷</kbd> → <kbd class="key mem">MR</kbd> → <kbd class="key eq">=</kbd> → получили ctg.</li>
+  </ol>
+  <div class="history">sin(30°) = 0.5 &nbsp;(M=0.5)<br>cos(30°) = 0.866025404<br>0.866025404 ÷ 0.5 = 1.732050808 &nbsp;← ctg 30°</div>
+  <h3>8.5. Особые точки</h3>
+  <table>
+    <tr><th>Функция</th><th>Не определена (DEG)</th><th>Показ калькулятора</th></tr>
+    <tr><td>ctg</td><td>0°, 180°, 360°…</td><td>«Ошибка» или огромное по модулю число</td></tr>
+    <tr><td>sec</td><td>90°, 270°…</td><td>огромное число (≈1.6·10¹⁶)</td></tr>
+    <tr><td>csc</td><td>0°, 180°, 360°…</td><td>«Ошибка» или огромное число</td></tr>
+  </table>
+  <div class="warn">⚠️ Из-за двоичной арифметики sin(180°) ≈ 1.22·10⁻¹⁶, а не ровно 0, поэтому вместо «Ошибка» возможно огромное число (≈8.16·10¹⁵) — это признак особой точки, а не поломка.</div>
+</section>
+
+<section id="s9" class="card">
+  <h2><span class="num">9.</span> Ошибки и ограничения</h2>
+  <table>
+    <tr><th>Ситуация</th><th>Реакция</th></tr>
+    <tr><td>Деление на 0, 1/0</td><td>«Ошибка»</td></tr>
+    <tr><td>x! от дробного или отрицательного</td><td>«Ошибка»</td></tr>
+    <tr><td>√ от отрицательного, asin/acos вне [−1; 1]</td><td>«Ошибка»</td></tr>
+    <tr><td>ln от 0</td><td>«-∞»</td></tr>
+    <tr><td>Переполнение (10ˣ при большом x, x! &gt; 170)</td><td>«∞»</td></tr>
+    <tr><td>Некорректная операция «=»</td><td>«Ошибка ввода» в строке результата</td></tr>
+  </table>
+  <ul class="steps">
+    <li>После ошибки нажмите CLEAR или начните новый ввод — сообщение не блокирует работу.</li>
+    <li>Целые результаты показываются без дробной части (48, а не 48.0); дроби округляются до 9 знаков (0.1 + 0.2 = 0.3).</li>
+    <li>0.1 + 0.2 = 0.3 — пример скрытого округления: внутреннее значение 0.30000000000000004 округляется при выводе.</li>
+  </ul>
+</section>
+
+<section id="s10" class="card">
+  <h2><span class="num">10.</span> Пошаговые примеры</h2>
+  <table>
+    <tr><th>№</th><th>Задача</th><th>Последовательность</th><th>Итог</th></tr>
+    <tr><td>1</td><td>12 × 4</td><td>1 2 → × → 4 → =</td><td>48</td></tr>
+    <tr><td>2</td><td>(5 + 3) × 2 цепочкой</td><td>5 → + → 3 → = → × → 2 → =</td><td>16</td></tr>
+    <tr><td>3</td><td>15% от 300</td><td>1 5 → % → × → 3 0 0 → =</td><td>45</td></tr>
+    <tr><td>4</td><td>2¹⁰</td><td>2 → xʸ → 1 0 → =</td><td>1024</td></tr>
+    <tr><td>5</td><td>√144 и ∛27</td><td>1 4 4 → √ ; 2 7 → ∛</td><td>12 и 3</td></tr>
+    <tr><td>6</td><td>log 1000</td><td>1 0 0 0 → log</td><td>3</td></tr>
+    <tr><td>7</td><td>5!</td><td>5 → x!</td><td>120</td></tr>
+    <tr><td>8</td><td>sin 30° и arcsin 0.5</td><td>3 0 → sin ; 0 . 5 → sin⁻¹</td><td>0.5 и 30</td></tr>
+    <tr><td>9</td><td>sin(π/6) в радианах</td><td>RAD → π → ÷ → 6 → = → sin</td><td>0.5</td></tr>
+    <tr><td>10</td><td>ctg 45° / sec 60° / csc 30°</td><td>см. раздел 8</td><td>1 / 2 / 2</td></tr>
+    <tr><td>11</td><td>Память: 12 + 8</td><td>1 2 → MS → 8 → M+ → MR</td><td>M=20, в поле 20</td></tr>
+    <tr><td>12</td><td>Исправить ввод 123 → 12</td><td>1 2 3 → ⌫</td><td>12</td></tr>
+    <tr><td>13</td><td>Экспорт журнала</td><td>🕐 →  (или 💾 внизу)</td><td>файл .txt + путь в Toast</td></tr>
+  </table>
+</section>
+
+<section id="s11" class="card">
+  <h2><span class="num">11.</span> Тренажёр ctg / sec / csc</h2>
+  <p>Введите угол, выберите режим и нажмите функцию — скрипт посчитает значение как калькулятор (округление до 9 знаков) и подскажет последовательность нажатий.</p>
+  <div class="checker">
+    <input id="angle" type="number" value="45" step="any" />
+    <select id="mode"><option value="DEG">DEG (градусы)</option><option value="RAD">RAD (радианы)</option></select>
+    <button onclick="check('ctg')">ctg</button>
+    <button onclick="check('sec')">sec</button>
+    <button onclick="check('csc')">csc</button>
+  </div>
+  <div id="checkResult">—</div>
+  <div id="checkSeq"></div>
+</section>
+
+<section id="s12" class="card">
+  <h2><span class="num">12.</span> Частые вопросы</h2>
+  <ul class="steps">
+    <li><b>История пропала после перезапуска.</b> Она хранится только в сеансе; постоянно сохраняется лишь тема. Делайте экспорт 💾.</li>
+    <li><b>Кнопка 💾 внизу не видна.</b> Она появляется только при непустой истории.</li>
+    <li><b>Научные кнопки исчезли.</b> Нажмите 🔭 в шапке — панель вернётся.</li>
+    <li><b>sin(30) дал странное число.</b> Проверьте режим углов: вероятно включён RAD, переключите на DEG.</li>
+    <li><b>tan(90°) выдал огромное число.</b> Математически tan 90° не определён; из-за точности double получается ≈1.63·10¹⁶, а ctg 90° = 1/tan ≈ 6.12·10⁻¹⁷ ≈ 0 — верно по смыслу.</li>
+    <li><b>Файл экспорта не виден в файловом менеджере.</b> Это защищённый каталог приложения; путь показан в Toast, получить файл можно через adb (раздел 7).</li>
+    <li><b>Как сбросить всё, включая память?</b> Кнопка CLEAR (режим углов и тема сохранятся).</li>
+    <li><b>Иконка в «недавних» старая после обновления.</b> Кэш системного интерфейса: удалите приложение, установите заново, при необходимости перезагрузите устройство.</li>
+  </ul>
+</section>
+
+<section id="s13" class="card">
+  <h2><span class="num">13.</span> Шпаргалка по всем органам управления</h2>
+  <table>
+    <tr><th>Элемент</th><th>Назначение</th></tr>
+    <tr><td>🌙 / ☀️</td><td>тёмная / светлая тема (сохраняется)</td></tr>
+    <tr><td>🔭 / 🔬</td><td>вкл/выкл научного режима</td></tr>
+    <tr><td>🕐 / ✕</td><td>открыть / закрыть историю</td></tr>
+    <tr><td>0–9, «.»</td><td>ввод числа</td></tr>
+    <tr><td>÷ × − +</td><td>операторы</td></tr>
+    <tr><td>=</td><td>вычислить</td></tr>
+    <tr><td>CLEAR / ⌫</td><td>полный сброс (включая M) / удалить символ</td></tr>
+    <tr><td>💾</td><td>экспорт истории в файл</td></tr>
+    <tr><td>DEG/RAD</td><td>единицы углов</td></tr>
+    <tr><td>sin cos tan, sin⁻¹ cos¹ tan⁻¹</td><td>тригонометрия и обратные</td></tr>
+    <tr><td>log, ln, 10ˣ</td><td>логарифмы и степень 10</td></tr>
+    <tr><td>x², x³, xʸ, √, ∛</td><td>степени и корни</td></tr>
+    <tr><td>x!, 1/x, %, ±</td><td>факториал, обратное, процент, знак</td></tr>
+    <tr><td>π, e</td><td>константы</td></tr>
+    <tr><td>MC MR M+ MS, индикатор M</td><td>память и её индикатор</td></tr>
+    <tr><td>«Очистить», свайп панели вверх</td><td>удалить историю / закрыть панель</td></tr>
+  </table>
+</section>
+
+</main>
+
+<footer>CalculatorUIPractice • руководство пользователя • calculator_user_guide.html</footer>
+
+<script>
+function fmt(v){
+  if (typeof v !== 'number' || Number.isNaN(v)) return 'Ошибка';
+  if (!isFinite(v)) return v > 0 ? '∞' : '-∞';
+  if (v === Math.round(v)) return String(Math.round(v));
+  return String(Math.round(v * 1e9) / 1e9);
+}
+function check(fn){
+  var a = parseFloat(document.getElementById('angle').value);
+  var mode = document.getElementById('mode').value;
+  var res = document.getElementById('checkResult');
+  var seq = document.getElementById('checkSeq');
+  if (Number.isNaN(a)) { res.textContent = 'Введите угол'; seq.textContent = ''; return; }
+  var rad = (mode === 'DEG') ? a * Math.PI / 180 : a;
+  var s = Math.sin(rad), c = Math.cos(rad), t = Math.tan(rad);
+  var base, baseName, val;
+  if (fn === 'ctg') { base = t; baseName = 'tan'; val = (t === 0) ? NaN : 1 / t; }
+  if (fn === 'sec') { base = c; baseName = 'cos'; val = (c === 0) ? NaN : 1 / c; }
+  if (fn === 'csc') { base = s; baseName = 'sin'; val = (s === 0) ? NaN : 1 / s; }
+  var suffix = (mode === 'DEG') ? '°' : ' rad';
+  var out = fn + '(' + fmt(a) + suffix + ') = ' + fmt(val);
+  if (Math.abs(val) > 1e10) out += '  ⚠ функция не определена в этой точке';
+  res.textContent = out;
+  seq.textContent = 'Последовательность: ' + fmt(a) + ' → [' + baseName + '] → [1/x];  промежуточно: ' + baseName + ' = ' + fmt(base);
+}
+</script>
+
+</body>
+</html>

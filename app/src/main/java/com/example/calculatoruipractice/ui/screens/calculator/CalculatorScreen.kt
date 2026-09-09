@@ -34,16 +34,31 @@ import com.example.calculatoruipractice.ui.theme.CalculatorTheme
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+import androidx.compose.material.icons.filled.Settings   // ← новый импорт
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CalculatorScreen(
     viewModel: CalculatorViewModel = viewModel(),
     isDarkTheme: Boolean = false,
-    onToggleTheme: () -> Unit = {}
+    onToggleTheme: () -> Unit = {},
+    onOpenSettings: () -> Unit = {}                        // ← новый параметр
 ) {
     val state by viewModel.state.collectAsState()
     val colors = CalculatorTheme.colors
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val isNarrow = configuration.screenWidthDp < 400          // узкий экран
+    val isHugeFont = configuration.fontScale > 1.3f          // крупный системный шрифт
+    val compact = isNarrow || isHugeFont
+    val useOverflow = configuration.screenWidthDp < 360 || (isNarrow && isHugeFont)
+    val buttonSize = if (compact) 36.dp else 40.dp
+    val iconFontSize = if (compact) 16.sp else 20.sp
+    var overflowExpanded by remember { mutableStateOf(false) }
 
     var dragOffset by remember { mutableStateOf(0f) }
     var isDragging by remember { mutableStateOf(false) }
@@ -57,44 +72,78 @@ fun CalculatorScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(horizontal = if (compact) 8.dp else 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Заголовок уступает место кнопкам и обрезается многоточием
             Text(
                 text = "🧮 КАЛЬКУЛЯТОР",
                 color = colors.textPrimary,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = if (compact) 18.sp else 24.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
             )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                IconButton(onClick = onToggleTheme, modifier = Modifier.size(40.dp)) {
-                    Text(
-                        text = if (isDarkTheme) "☀️" else "🌙",
-                        fontSize = 20.sp
-                    )
+            Row(horizontalArrangement = Arrangement.spacedBy(if (compact) 0.dp else 4.dp)) {
+                IconButton(onClick = onToggleTheme, modifier = Modifier.size(buttonSize)) {
+                    Text(text = if (isDarkTheme) "☀️" else "🌙", fontSize = iconFontSize)
                 }
-
-                IconButton(onClick = { viewModel.toggleScientificMode() }, modifier = Modifier.size(40.dp)) {
-                    Text(
-                        text = if (state.isScientific) "🔬" else "🔭",
-                        fontSize = 20.sp
-                    )
+                IconButton(onClick = { viewModel.toggleScientificMode() }, modifier = Modifier.size(buttonSize)) {
+                    Text(text = if (state.isScientific) "🔬" else "🔭", fontSize = iconFontSize)
                 }
-
-                IconButton(onClick = { viewModel.toggleHistory() }, modifier = Modifier.size(40.dp)) {
-                    Icon(
-                        imageVector = if (state.showHistory) {
-                            Icons.Default.Close
-                        } else {
-                            Icons.Default.History
-                        },
-                        contentDescription = "История",
-                        tint = colors.primary
-                    )
+                if (useOverflow) {
+                    // Очень узкий экран: история и настройки уходят в меню «⋮»
+                    Box {
+                        IconButton(onClick = { overflowExpanded = true }, modifier = Modifier.size(buttonSize)) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Ещё",
+                                tint = colors.primary
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = overflowExpanded,
+                            onDismissRequest = { overflowExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = if (state.showHistory) Icons.Default.Close else Icons.Default.History,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = { Text(if (state.showHistory) "Скрыть историю" else "История") },
+                                onClick = {
+                                    overflowExpanded = false
+                                    viewModel.toggleHistory()
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                                text = { Text("Настройки") },
+                                onClick = {
+                                    overflowExpanded = false
+                                    onOpenSettings()
+                                }
+                            )
+                        }
+                    }
+                } else {
+                    IconButton(onClick = { viewModel.toggleHistory() }, modifier = Modifier.size(buttonSize)) {
+                        Icon(
+                            imageVector = if (state.showHistory) Icons.Default.Close else Icons.Default.History,
+                            contentDescription = "История",
+                            tint = colors.primary
+                        )
+                    }
+                    IconButton(onClick = onOpenSettings, modifier = Modifier.size(buttonSize)) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Настройки",
+                            tint = colors.primary
+                        )
+                    }
                 }
             }
         }
