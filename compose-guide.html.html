@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jetpack Compose — Полный справочник</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            padding: 20px;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #58a6ff, #3fb950);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #8b949e;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            border-left: 4px solid #58a6ff;
+            padding-left: 20px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #21262d;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #58a6ff;
+            margin-top: 30px;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        .card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: #58a6ff;
+        }
+
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px 20px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #e6edf3;
+            position: relative;
+        }
+
+        .code-block .comment {
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        .code-block .keyword {
+            color: #ff7b72;
+        }
+
+        .code-block .function {
+            color: #d2a8ff;
+        }
+
+        .code-block .string {
+            color: #a5d6ff;
+        }
+
+        .code-block .number {
+            color: #79c0ff;
+        }
+
+        .code-block .annotation {
+            color: #ffa657;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #1f6feb;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-right: 6px;
+        }
+
+        .tag.green {
+            background: #238636;
+        }
+
+        .tag.purple {
+            background: #8957e5;
+        }
+
+        .tag.orange {
+            background: #d29922;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #21262d;
+            color: #8b949e;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .note {
+            background: #1c2333;
+            border-left: 4px solid #58a6ff;
+            padding: 16px 20px;
+            border-radius: 6px;
+            margin: 12px 0;
+        }
+
+        .note strong {
+            color: #58a6ff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: #21262d;
+            color: #f0f6fc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #30363d;
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #21262d;
+        }
+
+        tr:hover td {
+            background: #161b22;
+        }
+
+        .example-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 12px 0;
+        }
+
+        .example-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            flex: 1 1 200px;
+        }
+
+        .example-item .label {
+            color: #8b949e;
+            font-size: 0.8rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .example-item .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 0 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>🚀 Jetpack Compose</h1>
+    <div class="subtitle">
+        Полный справочник по синтаксису для Android-разработчиков
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 1. ФИЛОСОФИЯ И БАЗА -->
+    <!-- ============================================================ -->
+    <h2>📐 1. Философия и основы</h2>
+
+    <div class="card">
+        <h3>Что такое Jetpack Compose?</h3>
+        <p>
+            Jetpack Compose — это <strong>декларативный</strong> фреймворк для создания UI на Android.
+            Вы описываете <em>что</em> должно быть показано, а Compose сам решает <em>как</em> это отрисовать.
+        </p>
+        <div class="note">
+            <strong>Ключевая идея:</strong> UI — это функция от состояния.<br>
+            <code>UI = f(state)</code>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Аннотация <span class="tag">@Composable</span></h3>
+        <p>
+            Все функции, которые описывают UI, должны быть помечены аннотацией <code>@Composable</code>.
+            Это позволяет Compose отслеживать их и перерисовывать при изменении состояния.
+        </p>
+        <div class="code-block">
+            <span class="annotation">@Composable</span>
+            <span class="keyword">fun</span> <span class="function">MyScreen</span>() {
+            <span class="comment">// UI-код здесь</span>
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Функция <span class="tag">setContent</span></h3>
+        <p>
+            В <code>Activity</code> или <code>Fragment</code> вы передаёте Compose-функцию в <code>setContent</code>.
+        </p>
+        <div class="code-block">
+            <span class="keyword">class</span> MainActivity : ComponentActivity() {
+            <span class="keyword">override fun</span> <span class="function">onCreate</span>(savedInstanceState: Bundle?) {
+            <span class="keyword">super</span>.onCreate(savedInstanceState)
+            <span class="function">setContent</span> {
+            <span class="comment">// Здесь начинается ваш Compose-код</span>
+            MyAppTheme {
+            MyScreen()
+            }
+            }
+            }
+            }
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 2. МОДИФИКАТОРЫ (MODIFIER) -->
+    <!-- ============================================================ -->
+    <h2>🧩 2. Модификаторы (Modifier)</h2>
+
+    <div class="card">
+        <p>
+            <strong>Modifier</strong> — это самый важный инструмент в Compose. Он отвечает за:
+        </p>
+        <ul style="margin: 12px 0 12px 20px; color: #c9d1d9;">
+            <li>Размеры (<code>width, height, size</code>)</li>
+            <li>Отступы (<code>padding</code>)</li>
+            <li>Выравнивание (<code>align, weight</code>)</li>
+            <li>Обработку событий (<code>clickable, combinedClickable</code>)</li>
+            <li>Анимации (<code>animateContentSize</code>)</li>
+            <li>Фон, рамки, тени (<code>background, border, shadow</code>)</li>
+        </ul>
+        <div class="code-block">
+            Text(
+            text = <span class="string">"Привет!"</span>,
+            modifier = Modifier
+            .<span class="function">fillMaxWidth</span>()        <span class="comment">// ширина на весь экран</span>
+            .<span class="function">padding</span>(16.dp)          <span class="comment">// отступы 16dp со всех сторон</span>
+            .<span class="function">background</span>(Color.Blue)  <span class="comment">// синий фон</span>
+            .<span class="function">clickable</span> { <span class="comment">/* действие */</span> }  <span class="comment">// обработка клика</span>
+            )
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 3. БАЗОВЫЕ КОМПОНЕНТЫ -->
+    <!-- ============================================================ -->
+    <h2>📦 3. Базовые компоненты</h2>
+
+    <div class="grid-2">
+        <!-- Text -->
+        <div class="card">
+            <h4><span class="tag">Text</span> — аналог TextView</h4>
+            <div class="code-block">
+                Text(
+                text = <span class="string">"Заголовок"</span>,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+                )
+            </div>
+        </div>
+
+        <!-- Button -->
+        <div class="card">
+            <h4><span class="tag">Button</span> — аналог Button</h4>
+            <div class="code-block">
+                Button(
+                onClick = { <span class="comment">/* действие */</span> },
+                enabled = true,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Blue
+                )
+                ) {
+                Text(<span class="string">"Нажми меня"</span>)
+                }
+            </div>
+        </div>
+
+        <!-- Image -->
+        <div class="card">
+            <h4><span class="tag">Image</span> — аналог ImageView</h4>
+            <div class="code-block">
+                Image(
+                painter = painterResource(id = R.drawable.icon),
+                contentDescription = <span class="string">"Иконка"</span>,
+                modifier = Modifier.size(64.dp),
+                contentScale = ContentScale.Crop
+                )
+            </div>
+            <div class="note" style="margin-top: 8px;">
+                <small>Для загрузки из интернета используйте <code>rememberAsyncImagePainter</code> из библиотеки Coil</small>
+            </div>
+        </div>
+
+        <!-- TextField -->
+        <div class="card">
+            <h4><span class="tag">TextField</span> — аналог EditText</h4>
+            <div class="code-block">
+                <span class="keyword">var</span> text <span class="keyword">by</span> remember { mutableStateOf(<span class="string">""</span>) }
+
+                TextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text(<span class="string">"Введите имя"</span>) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent
+                )
+                )
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 4. КОНТЕЙНЕРЫ (LAYOUTS) -->
+    <!-- ============================================================ -->
+    <h2>📐 4. Контейнеры (Layouts)</h2>
+
+    <div class="grid-3">
+        <div class="card">
+            <h4><span class="tag green">Column</span> — вертикальный LinearLayout</h4>
+            <div class="code-block">
+                Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                Text(<span class="string">"Элемент 1"</span>)
+                Text(<span class="string">"Элемент 2"</span>)
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <h4><span class="tag green">Row</span> — горизонтальный LinearLayout</h4>
+            <div class="code-block">
+                Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+                ) {
+                Icon(Icons.Default.Home, null)
+                Text(<span class="string">"Главная"</span>)
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <h4><span class="tag green">Box</span> — FrameLayout (наложение)</h4>
+            <div class="code-block">
+                Box(
+                modifier = Modifier.size(200.dp)
+                ) {
+                Box(
+                modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Red)
+                )
+                Text(
+                <span class="string">"Поверх"</span>,
+                modifier = Modifier.align(Alignment.Center)
+                )
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 5. СПИСКИ (LAZY LISTS) -->
+    <!-- ============================================================ -->
+    <h2>📋 5. Списки (Lazy Lists)</h2>
+
+    <div class="card">
+        <p>
+            <strong>LazyColumn</strong> и <strong>LazyRow</strong> — аналоги RecyclerView.
+            Они загружают только видимые элементы, экономя ресурсы.
+        </p>
+        <div class="code-block">
+            <span class="keyword">val</span> items = List(100) { <span class="string">"Элемент #</span><span class="string">$it</span><span class="string">"</span> }
+
+            LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+            items(
+            items = items,
+            key = { it } <span class="comment">// уникальный ключ для каждого элемента</span>
+            ) { item ->
+            Card(
+            modifier = Modifier.fillMaxWidth()
+            ) {
+            Text(
+            text = item,
+            modifier = Modifier.padding(16.dp)
+            )
+            }
+            }
+            }
+        </div>
+
+        <div class="note">
+            <strong>Важно:</strong> Внутри LazyColumn нельзя использовать другие Lazy-компоненты.
+            Для вложенных списков используйте <code>LazyVerticalStaggeredGrid</code> или обычный <code>Column</code>.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 6. УПРАВЛЕНИЕ СОСТОЯНИЕМ -->
+    <!-- ============================================================ -->
+    <h2>🔄 6. Управление состоянием (State)</h2>
+
+    <div class="card">
+        <h3><span class="tag purple">mutableStateOf</span> — наблюдаемое состояние</h3>
+        <div class="code-block">
+            <span class="comment">// Вариант 1: с делегированием (рекомендуется)</span>
+            <span class="keyword">var</span> counter <span class="keyword">by</span> remember { mutableStateOf(0) }
+
+            <span class="comment">// Вариант 2: без делегирования</span>
+            <span class="keyword">val</span> counterState = remember { mutableStateOf(0) }
+
+            Button(
+            onClick = { counter++ }  <span class="comment">// при изменении UI перерисуется</span>
+            ) {
+            Text(<span class="string">"Нажато: </span><span class="string">$counter</span><span class="string">"</span>)
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <h3><span class="tag purple">remember</span> — запоминание значения</h3>
+        <p>
+            <code>remember</code> сохраняет значение между рекомпозициями.
+            Без него состояние бы сбрасывалось при каждой перерисовке.
+        </p>
+        <div class="code-block">
+            <span class="comment">// remember без ключей — сохраняется навсегда</span>
+            <span class="keyword">val</span> value = remember { <span class="function">expensiveCalculation</span>() }
+
+            <span class="comment">// remember с ключами — пересчитывается при изменении ключей</span>
+            <span class="keyword">val</span> filtered = remember(inputList, filter) {
+            inputList.filter { it == filter }
+            }
+        </div>
+    </div>
+
+    <div class="card">
+        <h3><span class="tag purple">rememberSaveable</span> — сохранение при повороте</h3>
+        <p>
+            Аналог <code>onSaveInstanceState</code>. Сохраняет состояние при повороте экрана.
+        </p>
+        <div class="code-block">
+            <span class="keyword">var</span> text <span class="keyword">by</span> rememberSaveable { mutableStateOf(<span class="string">""</span>) }
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 7. ВЗАИМОДЕЙСТВИЕ С ПОЛЬЗОВАТЕЛЕМ -->
+    <!-- ============================================================ -->
+    <h2>👆 7. Взаимодействие с пользователем</h2>
+
+    <div class="grid-2">
+        <div class="card">
+            <h4><span class="tag orange">clickable</span> — обработка кликов</h4>
+            <div class="code-block">
+                Text(
+                text = <span class="string">"Нажми на меня"</span>,
+                modifier = Modifier
+                .clickable {
+                <span class="comment">// действие</span>
+                }
+                )
+            </div>
+        </div>
+
+        <div class="card">
+            <h4><span class="tag orange">combinedClickable</span> — расширенные клики</h4>
+            <div class="code-block">
+                Text(
+                text = <span class="string">"Кликни или долго жми"</span>,
+                modifier = Modifier
+                .combinedClickable(
+                onClick = { <span class="comment">// короткий клик</span> },
+                onLongClick = { <span class="comment">// долгий клик</span> },
+                onDoubleClick = { <span class="comment">// двойной клик</span> }
+                )
+                )
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 8. ТЕМЫ И СТИЛИ (THEMING) -->
+    <!-- ============================================================ -->
+    <h2>🎨 8. Темизация (Theming)</h2>
+
+    <div class="card">
+        <h3><span class="tag">MaterialTheme</span> — единый источник стилей</h3>
+        <div class="code-block">
+            <span class="annotation">@Composable</span>
+            <span class="keyword">fun</span> <span class="function">MyAppTheme</span>(
+            darkTheme: Boolean = isSystemInDarkTheme(),
+            content: <span class="annotation">@Composable</span> () -> Unit
+            ) {
+            <span class="keyword">val</span> colorScheme = <span class="keyword">if</span> (darkTheme) {
+            darkColorScheme(
+            primary = Color(0xFFBB86FC),
+            secondary = Color(0xFF03DAC6)
+            )
+            } <span class="keyword">else</span> {
+            lightColorScheme(
+            primary = Color(0xFF6200EE),
+            secondary = Color(0xFF03DAC6)
+            )
+            }
+
+            MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography(
+            headlineLarge = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Bold,
+            fontSize = 30.sp
+            )
+            ),
+            content = content
+            )
+            }
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 9. ПРЕВЬЮ (PREVIEW) -->
+    <!-- ============================================================ -->
+    <h2>👀 9. Preview — предпросмотр в IDE</h2>
+
+    <div class="card">
+        <p>
+            Используйте <code>@Preview</code> для быстрого просмотра UI прямо в Android Studio
+            без запуска эмулятора.
+        </p>
+        <div class="code-block">
+            <span class="annotation">@Preview</span>(
+            name = <span class="string">"Светлая тема"</span>,
+            showBackground = true,
+            backgroundColor = 0xFFFFFFFF,
+            device = Devices.PIXEL_6
+            )
+            <span class="annotation">@Composable</span>
+            <span class="keyword">fun</span> <span class="function">PreviewMyScreen</span>() {
+            MyAppTheme {
+            MyScreen()
+            }
+            }
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 10. НАВИГАЦИЯ -->
+    <!-- ============================================================ -->
+    <h2>🧭 10. Навигация (Navigation)</h2>
+
+    <div class="card">
+        <p>
+            Для навигации используется библиотека <code>navigation-compose</code>.
+        </p>
+        <div class="code-block">
+            <span class="keyword">val</span> navController = rememberNavController()
+
+            NavHost(
+            navController = navController,
+            startDestination = <span class="string">"home"</span>
+            ) {
+            composable(<span class="string">"home"</span>) { HomeScreen(navController) }
+            composable(<span class="string">"details/{id}"</span>) { backStackEntry ->
+            <span class="keyword">val</span> id = backStackEntry.arguments?.getString(<span class="string">"id"</span>)
+            DetailsScreen(id)
+            }
+            }
+
+            <span class="comment">// Переход на другой экран</span>
+            Button(onClick = { navController.navigate(<span class="string">"details/123"</span>) }) {
+            Text(<span class="string">"Перейти"</span>)
+            }
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 11. ЖИЗНЕННЫЙ ЦИКЛ -->
+    <!-- ============================================================ -->
+    <h2>⏳ 11. Жизненный цикл</h2>
+
+    <div class="card">
+        <p>
+            В Compose нет <code>onCreate</code>, <code>onStart</code> и т.д.
+            Используйте <code>LaunchedEffect</code> и <code>DisposableEffect</code>.
+        </p>
+        <div class="code-block">
+            <span class="comment">// Выполняется один раз при появлении</span>
+            LaunchedEffect(Unit) {
+            <span class="comment">// действия при входе на экран</span>
+            }
+
+            <span class="comment">// Выполняется при изменении ключа</span>
+            LaunchedEffect(userId) {
+            <span class="comment">// загрузить данные для userId</span>
+            }
+
+            <span class="comment">// С очисткой при выходе</span>
+            DisposableEffect(Unit) {
+            <span class="comment">// подписка</span>
+            onDispose {
+            <span class="comment">// отписка</span>
+            }
+            }
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 12. БОЛЕЕ СЛОЖНЫЕ КОМПОНЕНТЫ -->
+    <!-- ============================================================ -->
+    <h2>🏗️ 12. Дополнительные компоненты</h2>
+
+    <div class="grid-2">
+        <div class="card">
+            <h4><span class="tag">Card</span> — карточка с Material Design</h4>
+            <div class="code-block">
+                Card(
+                modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+                elevation = CardDefaults.cardElevation(4.dp),
+                colors = CardDefaults.cardColors(
+                containerColor = Color.White
+                )
+                ) {
+                Text(
+                text = <span class="string">"Контент карточки"</span>,
+                modifier = Modifier.padding(16.dp)
+                )
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <h4><span class="tag">Scaffold</span> — стандартный макет экрана</h4>
+            <div class="code-block">
+                Scaffold(
+                topBar = {
+                TopAppBar(
+                title = { Text(<span class="string">"Мое приложение"</span>) }
+                )
+                },
+                bottomBar = {
+                BottomNavigation {
+                <span class="comment">// навигация внизу</span>
+                }
+                },
+                floatingActionButton = {
+                FloatingActionButton(onClick = {}) {
+                Icon(Icons.Default.Add, null)
+                }
+                }
+                ) { innerPadding ->
+                <span class="comment">// основной контент</span>
+                Column(modifier = Modifier.padding(innerPadding)) {
+                Text(<span class="string">"Основной контент"</span>)
+                }
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <h4><span class="tag">AlertDialog</span> — диалоговое окно</h4>
+            <div class="code-block">
+                <span class="keyword">var</span> showDialog <span class="keyword">by</span> remember { mutableStateOf(false) }
+
+                <span class="keyword">if</span> (showDialog) {
+                AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text(<span class="string">"Заголовок"</span>) },
+                text = { Text(<span class="string">"Текст диалога"</span>) },
+                confirmButton = {
+                Button(onClick = { showDialog = false }) {
+                Text(<span class="string">"OK"</span>)
+                }
+                },
+                dismissButton = {
+                Button(onClick = { showDialog = false }) {
+                Text(<span class="string">"Отмена"</span>)
+                }
+                }
+                )
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <h4><span class="tag">DropdownMenu</span> — выпадающее меню</h4>
+            <div class="code-block">
+                <span class="keyword">var</span> expanded <span class="keyword">by</span> remember { mutableStateOf(false) }
+
+                Box {
+                IconButton(onClick = { expanded = true }) {
+                Icon(Icons.Default.MoreVert, null)
+                }
+
+                DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+                ) {
+                DropdownMenuItem(
+                text = { Text(<span class="string">"Пункт 1"</span>) },
+                onClick = { expanded = false }
+                )
+                DropdownMenuItem(
+                text = { Text(<span class="string">"Пункт 2"</span>) },
+                onClick = { expanded = false }
+                )
+                }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 13. ПОЛЕЗНЫЕ ШАБЛОНЫ -->
+    <!-- ============================================================ -->
+    <h2>📝 13. Полезные шаблоны</h2>
+
+    <div class="grid-2">
+        <div class="card">
+            <h4>Обработка загрузки данных</h4>
+            <div class="code-block">
+                <span class="keyword">when</span> (state) {
+                is Loading -> CircularProgressIndicator()
+                is Success -> MyContent(state.data)
+                is Error -> Text(<span class="string">"Ошибка: </span><span class="string">${state.message}</span><span class="string">"</span>)
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>Анимация при появлении</h4>
+            <div class="code-block">
+                AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn() + slideInVertically(),
+                exit = fadeOut() + slideOutVertically()
+                ) {
+                Text(<span class="string">"Я появляюсь с анимацией!"</span>)
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>Адаптивный размер</h4>
+            <div class="code-block">
+                <span class="keyword">val</span> density = LocalDensity.current
+                <span class="keyword">val</span> screenWidth = density.configuration.screenWidthDp.dp
+
+                <span class="keyword">if</span> (screenWidth > 600.dp) {
+                <span class="comment">// планшетный вид</span>
+                Row { ... }
+                } <span class="keyword">else</span> {
+                <span class="comment">// мобильный вид</span>
+                Column { ... }
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>Пользовательские типы данных в remember</h4>
+            <div class="code-block">
+                <span class="keyword">data class</span> User(<span class="keyword">val</span> name: String, <span class="keyword">val</span> age: Int)
+
+                <span class="keyword">var</span> user <span class="keyword">by</span> remember { mutableStateOf(User(<span class="string">"Анна"</span>, 25)) }
+
+                Button(onClick = { user = user.copy(age = user.age + 1) }) {
+                Text(<span class="string">"Возраст: </span><span class="string">${user.age}</span><span class="string">"</span>)
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 14. ШПАРГАЛКА ПО СИНТАКСИСУ -->
+    <!-- ============================================================ -->
+    <h2>📌 14. Шпаргалка по синтаксису</h2>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Компонент / Функция</th>
+                    <th>Синтаксис</th>
+                    <th>Описание</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge">@Composable</span></td>
+                    <td><code>@Composable fun Name() { ... }</code></td>
+                    <td>Объявление UI-функции</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">Text</span></td>
+                    <td><code>Text("текст")</code></td>
+                    <td>Отображение текста</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">Button</span></td>
+                    <td><code>Button(onClick = {}) { Text("...") }</code></td>
+                    <td>Кнопка</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">Column</span></td>
+                    <td><code>Column { ... }</code></td>
+                    <td>Вертикальный контейнер</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">Row</span></td>
+                    <td><code>Row { ... }</code></td>
+                    <td>Горизонтальный контейнер</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">Box</span></td>
+                    <td><code>Box { ... }</code></td>
+                    <td>Наложение элементов</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">LazyColumn</span></td>
+                    <td><code>LazyColumn { items(list) { ... } }</code></td>
+                    <td>Список с ленивой загрузкой</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">mutableStateOf</span></td>
+                    <td><code>var x by remember { mutableStateOf(0) }</code></td>
+                    <td>Наблюдаемое состояние</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">remember</span></td>
+                    <td><code>val x = remember { ... }</code></td>
+                    <td>Сохранение значения</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">Modifier</span></td>
+                    <td><code>Modifier.fillMaxWidth().padding(8.dp)</code></td>
+                    <td>Цепочка настроек</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">@Preview</span></td>
+                    <td><code>@Preview @Composable fun Preview() { ... }</code></td>
+                    <td>Предпросмотр в IDE</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">NavHost</span></td>
+                    <td><code>NavHost(navController, startDestination) { ... }</code></td>
+                    <td>Навигационный хост</td>
+                </tr>
+                <tr>
+                    <td><span class="badge">LaunchedEffect</span></td>
+                    <td><code>LaunchedEffect(key) { ... }</code></td>
+                    <td>Выполнение кода при появлении</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 15. ПОЛЕЗНЫЕ РЕСУРСЫ -->
+    <!-- ============================================================ -->
+    <h2>🔗 15. Полезные ресурсы</h2>
+
+    <div class="card">
+        <ul style="margin: 12px 0 12px 20px; color: #c9d1d9; list-style: none; padding: 0;">
+            <li style="padding: 6px 0;">📖 <a href="https://developer.android.com/jetpack/compose" style="color: #58a6ff; text-decoration: none;" target="_blank">Официальная документация</a></li>
+            <li style="padding: 6px 0;">🧪 <a href="https://developer.android.com/codelabs/jetpack-compose-basics" style="color: #58a6ff; text-decoration: none;" target="_blank">Codelab: Основы Compose</a></li>
+            <li style="padding: 6px 0;">🎨 <a href="https://m3.material.io/" style="color: #58a6ff; text-decoration: none;" target="_blank">Material Design 3</a></li>
+            <li style="padding: 6px 0;">📦 <a href="https://developer.android.com/jetpack/androidx/releases/compose" style="color: #58a6ff; text-decoration: none;" target="_blank">Релизы Compose (версии)</a></li>
+            <li style="padding: 6px 0;">💬 <a href="https://kotlinlang.org/docs/jetpack-compose.html" style="color: #58a6ff; text-decoration: none;" target="_blank">Kotlin + Compose</a></li>
+        </ul>
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top: 60px; padding: 20px 0; border-top: 1px solid #21262d; text-align: center; color: #8b949e; font-size: 0.9rem;">
+        Jetpack Compose — Полный справочник &bull; 2026
+    </div>
+
+</div>
+</body>
+</html>
